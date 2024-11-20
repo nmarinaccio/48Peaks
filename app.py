@@ -21,7 +21,7 @@ def after_request(response):
 
 @app.route('/')
 def home():
-    return render_template("home.html")
+    return render_template("home.html", logged_in=True)
 
 
 @app.route('/login', methods=["GET", "POST"])
@@ -30,7 +30,7 @@ def login():
     session.clear()
 
     if request.method == "GET":
-        return render_template("login.html")
+        return render_template("login.html", logged_in=False)
 
 if __name__ == "__main__":
     app.run(debug=True)

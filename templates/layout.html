@@ -8,14 +8,18 @@
     <body>
         <!-- Navigation Bar -->
         <div class="navigation-bar">
-            <div class="logo">48 Tracker Online</div>
+            <div class="logo">48 Peaks</div>
             <div class="nav-links">
                 <a href="#">Home</a>
                 <a href="#">Log a Peak!</a>
                 <a href="#">Your Peaks</a>
                 <a href="#">About</a>
             </div>
-            <button class="cta-button">Log Out</button>
+            {% if logged_in %}
+                <button class="cta-button">Log Out</button>
+            {% else %}
+                <button class="cta-button">Register</button>
+            {% endif %}
         </div>
 
         <!-- Dynamic Content -->
