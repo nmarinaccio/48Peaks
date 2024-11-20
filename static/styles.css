@@ -1,0 +1,341 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #F0F0F0;
+    color: #ffffff;
+    overflow: hidden;
+}
+
+.navigation-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #4E4E4E;
+    color: #ffffff;
+    padding: 10px 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    height: 40px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navigation-bar a {
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0 15px;
+    transition: color 0.3s ease;
+}
+
+.navigation-bar a:hover {
+    color: #cccccc; /* Lighter color for hover effect */
+}
+
+.navigation-bar .logo {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.navigation-bar .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.navigation-bar .cta-button {
+    background-color: #ffffff;
+    color: #4E4E4E;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.navigation-bar .cta-button:hover {
+    background-color: #4E4E4E;
+    color: #ffffff;
+    border: 1px solid #ffffff;
+}
+
+/* Mountain List CSS Classes */
+
+.mountain-list-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: calc(100vh - 40px);
+    width: 33%;
+    border-right: 2px solid #cccccc;
+    background-color: #ffffff;
+    float: left;
+    margin-right: 0;
+    overflow-y: auto;
+}
+
+.mountain-list-header {
+    display: flex;
+    align-items: center;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    border-bottom: solid 2px grey;
+}
+
+.mountain-list-header-title {
+    color: #4e4e4e;
+    font-weight: bold;
+    font-size: 40px;
+}
+
+.mountain-list-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-grow: 1;
+    width: 100%;
+    overflow-y: auto;
+    padding-bottom: 15px;
+}
+
+
+.mountain-item-container {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background-color: #3E3E3E;
+    border-radius: 15px;
+    width: 80%;
+    max-width: 400px;
+    height: 200px;
+    margin-bottom: 15px;
+    flex-shrink: 0;
+    box-shadow: 5px 5px 5px #D1D1D1;
+}
+
+.mountain-list-title-section {
+    display: flex;
+    border-bottom: 2px solid #ffffff;
+    padding: 10px;
+    height: 55%;
+    background-size: cover;
+    background-position: center;
+}
+
+.mountain-list-title {
+    background-color: #4E4E4E;
+    border-radius: 5px;
+    height: 1em;
+    padding: 3px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+}
+
+.mountain-list-subsections {
+    display: flex;
+    width: 100%;
+    height: 55%;
+}
+
+.mountain-list-subsection {
+    width: 33%;
+    height: 100%;
+    align-items: center;
+}
+
+.mountain-list-subsection-title {
+    padding-top: 12px;
+    text-align: center;
+    font-size: 13px;
+    color: #CACACA;
+}
+
+.mountain-list-subsection-content {
+    padding-top: 5px;
+    vertical-align: middle;
+    text-align: center;
+    font-weight: bold;
+}
+
+/* User's Mountain Information Section of Peak List */
+
+.mountain-list-user-log-container {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 40px); /* Adjust to fit below the navigation bar */
+    overflow-y: auto; /* Enable scrolling for the entire container */
+}
+
+.mountain-list-user-log-header {
+    flex-shrink: 0; /* Prevent shrinking */
+    height: 50%; /* Adjust header height if needed */
+    background-repeat: no-repeat;
+    background-size: 100% auto;
+    background-position: center;
+    width: 100%;
+    position: relative;
+}
+
+.mountain-list-user-log-title {
+    position: absolute;
+    bottom: 10%;
+    left: 5%;
+    font-size: 50px;
+    font-weight: bold;
+    color: #4e4e4e;
+    align-items: center;
+    gap: 5px;
+}
+
+.mountain-list-user-log-subtitle {
+    position: absolute;
+    bottom: 7%;
+    left: 5%;
+    font-size: 15px;
+    color: #4e4e4e;
+    margin: 0;
+}
+
+
+.mountain-list-user-log-body {
+    flex-grow: 1; /* Allow the body to expand within the container */
+    color: #4e4e4e;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+
+.mountain-list-user-data {
+    display: flex;
+    width: 100%;
+    height: 75px;
+    margin: 2% 5%;
+}
+
+.mountain-list-user-data-subsection {
+    height: 100%;
+    width: 15%;
+    text-align: center;
+}
+
+.mountain-list-user-data-subsection h4, h1 {
+    margin: 0;
+}
+
+.mountain-list-user-log-mountain-infromation {
+    margin: 0% 5%;
+}
+
+/* Summit Photo Section */
+.mountain-list-user-log-summit-photo {
+    margin: 0 5%;
+    text-align: center;
+}
+
+.mountain-list-user-log-summit-photo h2 {
+    font-size: 24px;
+    color: #4e4e4e;
+    margin-bottom: 10px;
+}
+
+.summit-photo {
+    max-width: 100%;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Comments Section */
+.mountain-list-user-log-comments {
+    margin: 0 5%;
+}
+
+.mountain-list-user-log-comments h2 {
+    font-size: 24px;
+    color: #4e4e4e;
+    margin-bottom: 15px;
+}
+
+.comment {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.comment-pfp {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 15px;
+}
+
+.comment-content {
+    background-color: #F0F0F0;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    flex-grow: 1;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.comment-author {
+    font-weight: bold;
+    font-size: 16px;
+    color: #4e4e4e;
+}
+
+.comment-timestamp {
+    font-size: 12px;
+    color: #8e8e8e;
+}
+
+.comment-text {
+    font-size: 14px;
+    color: #4e4e4e;
+    margin: 0;
+}
+
+/* Comment Input Section */
+.comment-input-section {
+    display: flex;
+    align-items: center;
+    margin-top: 15px;
+    margin-bottom: 30px;
+}
+
+.comment-input {
+    flex-grow: 1;
+    padding: 10px;
+    border-radius: 25px;
+    border: 1px solid #cccccc;
+    font-size: 14px;
+    margin-right: 10px;
+    outline: none;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.comment-post-button {
+    background-color: #4E4E4E;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.comment-post-button:hover {
+    background-color: #6e6e6e;
+    transform: scale(1.05);
+}
