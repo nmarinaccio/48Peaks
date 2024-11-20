@@ -15,12 +15,33 @@
                 <a href="#">Your Peaks</a>
                 <a href="#">About</a>
             </div>
-            {% if logged_in %}
-                <button class="cta-button">Log Out</button>
-            {% else %}
-                <button class="cta-button">Register</button>
-            {% endif %}
         </div>
+
+        <!-- Flash Messages -->
+        {% if get_flashed_messages() %}
+            <div class="flash-overlay">
+                {% with messages = get_flashed_messages(with_categories=True) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="flash-message {{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+
+            <script>
+                // JavaScript to handle flash message animations
+                document.addEventListener("DOMContentLoaded", function () {
+                    const flashMessages = document.querySelectorAll(".flash-message");
+                    flashMessages.forEach((msg) => {
+                        msg.classList.add("visible"); // Trigger the slide-down animation
+                        setTimeout(() => {
+                            msg.classList.remove("visible"); // Trigger the slide-up animation
+                        }, 5000); // Show for 5 seconds
+                    });
+                });
+            </script>
+        {% endif %}
 
         <!-- Dynamic Content -->
         <div class="content">

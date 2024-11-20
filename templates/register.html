@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-container">
+        <h2>Register</h2>
+        <form action="{{ url_for('register') }}" method="POST" class="auth-form">
+            <!-- Username Field -->
+            <div class="form-group">
+                <label for="username">Username<span style="color:red;">*</span></label>
+                <input type="text" id="username" name="username" placeholder="" autofocus required>
+            </div>
+
+            <!-- Password Field -->
+            <div class="form-group">
+                <label for="password">Password<span style="color:red;">*</span></label>
+                <input type="password" id="password" name="password" placeholder="" required>
+            </div>
+
+            <div class="form-group">
+                <label for="check_password">Confirm Password<span style="color:red;">*</span></label>
+                <input type="password" id="check_password" name="check_password" placeholder="" required>
+            </div>
+
+            <!-- First Name Field -->
+            <div class="form-group">
+                <label for="first_name">First Name<span style="color:red;">*</span></label>
+                <input type="text" id="first_name" name="first_name" placeholder="" required>
+            </div>
+
+            <!-- Last Name Field -->
+            <div class="form-group">
+                <label for="last_name">Last Name<span style="color:red;">*</span></label>
+                <input type="text" id="last_name" name="last_name" placeholder="" required>
+            </div>
+
+            <!-- Email Field -->
+            <div class="form-group">
+                <label for="email">Email<span style="color:red;">*</span></label>
+                <input type="email" id="email" name="email" placeholder="" required>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="auth-button">Register</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
