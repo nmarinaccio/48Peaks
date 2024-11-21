@@ -123,5 +123,35 @@ def register():
     return redirect(url_for("login"))
 
 
+@app.route('/mountain/<int:mountain_id>', methods=["GET", "POST"])
+@login_required
+def mountain_page(mountain_id):
+    # Get the database connection
+    db = get_db()
+    
+    if request.method == "GET":
+        # Fetch mountain details
+        mountain = db.execute("SELECT * FROM mountains WHERE id = ?", (mountain_id,)).fetchone()
+        
+        # Handle case where the mountain is not found
+        if not mountain:
+            flash("Mountain not found.", "error")
+            return redirect(url_for("home"))  # Redirect to the homepage or an appropriate page
+
+        # Fetch comments for the mountain
+        comments = db.execute("""
+            SELECT comments.id, comments.timestamp, comments.message, 
+                users.username, users.profile_photo 
+            FROM comments
+            JOIN users ON comments.user_id = users.id
+            WHERE comments.mountain_id = ?
+            ORDER BY comments.timestamp DESC
+        """, (mountain_id,)).fetchall()
+
+        return render_template("mountain_page.html", mountain=mountain, comments=comments)
+    
+    
+
 if __name__ == "__main__":
     app.run(debug=True)
+

@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    {{ mountain.name }}
+{% endblock %}
+
+{% block content %}
+<div class="mountain-list-user-log-container">
+    <!-- Mountain Header -->
+    <div class="mountain-list-user-log-header" 
+         style="background-image: linear-gradient(to bottom, rgba(0,0,0,0) 50%, #F0F0F0 90%), url('/static/images/mountain_images/{{ mountain.mountain_photo }}');">
+        <div class="mountain-list-user-log-title">{{ mountain.name }}</div>
+    </div>
+
+    <div class="mountain-list-user-log-body">
+        <!-- Mountain Blurb -->
+        <div class="mountain-list-user-log-mountain-infromation">
+            <h2>About {{ mountain.name }}</h2>
+            <p>{{ mountain.mountain_blurb }}</p>
+            <p><a href="{{ mountain.information_link }}" target="_blank">Learn more about {{ mountain.name }}</a></p>
+        </div>
+
+        <!-- Summit Photo -->
+        <div class="mountain-list-user-log-summit-photo">
+            <h2>Mountain Photo</h2>
+            <img src="/static/images/mountain_images/{{ mountain.mountain_photo }}" alt="Summit Photo" class="summit-photo">
+        </div>
+        <br>
+
+        <!-- Comments Section -->
+        <div class="mountain-list-user-log-comments">
+            <h2>Comments</h2>
+            {% if comments %}
+                {% for comment in comments %}
+                <div class="comment">
+                    <img src="{{ comment.profile_photo }}" alt="{{ comment.username }}'s Profile Picture" class="comment-pfp">
+                    <div class="comment-content">
+                        <div class="comment-header">
+                            <span class="comment-author">{{ comment.username }}</span>
+                            <span class="comment-timestamp">{{ comment.timestamp }}</span>
+                        </div>
+                        <p class="comment-text">{{ comment.message }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p>No comments yet. Be the first to comment!</p>
+            {% endif %}
+            <!-- Comment Input Section -->
+            <form class="comment-input-section">
+                <input type="text" placeholder="Add a comment..." class="comment-input" name="comment-text">
+                <button class="comment-post-button" type="submit">Post</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
