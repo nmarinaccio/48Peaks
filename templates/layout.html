@@ -4,6 +4,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>{% block title %}Page Title{% endblock %}</title>
         <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+        {% block title %}Script{% endblock %}
     </head>
     <body>
         <!-- Navigation Bar -->
@@ -37,7 +38,7 @@
                         msg.classList.add("visible"); // Trigger the slide-down animation
                         setTimeout(() => {
                             msg.classList.remove("visible"); // Trigger the slide-up animation
-                        }, 5000); // Show for 5 seconds
+                        }, 2000); // Show for 5 seconds
                     });
                 });
             </script>
