@@ -1,12 +1,17 @@
-from flask import Flask, g, render_template, request, redirect, url_for, flash, session, jsonify
-from flask_session import Session
+# Standard library imports
 import os
 import sqlite3
-from werkzeug.security import generate_password_hash, check_password_hash
-from werkzeug.utils import secure_filename
-from helpers import login_required
 from datetime import datetime
+
+# Third-party library imports
 import pytz
+from flask import Flask, flash, g, jsonify, redirect, render_template, request, session, url_for
+from flask_session import Session
+from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.utils import secure_filename
+
+# Local application/library-specific imports
+from helpers import login_required
 
 DATABASE = "48peaks.db"
 
