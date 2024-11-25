@@ -103,6 +103,70 @@ body {
     border: 1px solid #ffffff;
 }
 
+/* Profile Section */
+.profile-dropdown {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    cursor: pointer;
+}
+
+.profile-photo {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.profile-photo:hover {
+    transform: scale(1.1);
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+    position: absolute;
+    top: 50px; /* Position below the photo */
+    right: 0;
+    background-color: #ffffff;
+    color: #4E4E4E;
+    border: 1px solid #cccccc;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    display: none; /* Hidden by default */
+    flex-direction: column;
+    padding: 10px 0;
+    z-index: 1000;
+    opacity: 0;
+    transform: translateY(-15px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.dropdown-menu.show {
+    display: flex;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.dropdown-menu a {
+    width: 100px;
+    padding: 10px 20px;
+    text-decoration: none;
+    color: #4E4E4E;
+    font-size: 16px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    display: block;
+}
+
+.dropdown-menu a:hover {
+    background-color: #4E4E4E;
+    color: #ffffff;
+}
+
+
 /* Mountain List CSS Classes */
 
 .mountain-list-container {
@@ -472,4 +536,278 @@ body {
 /* Consistent Design for Registration Page */
 .auth-container.registration h2 {
     color: #4E4E4E;
+}
+
+/* Profile Page Styling */
+.profile-page-container {
+    position: relative;
+    overflow-y: auto; /* Enable vertical scrolling for the entire container */
+    height: calc(100vh - 40px); /* Full height minus the navbar height */
+}
+
+/* Profile Header */
+.profile-header {
+    flex-shrink: 0; /* Prevent shrinking */
+    height: 50%; /* Adjust header height */
+    background-repeat: no-repeat;
+    background-size: 100% auto;
+    background-position: center;
+    width: 100%;
+    position: relative;
+}
+
+.profile-title {
+    position: absolute;
+    bottom: 10%;
+    left: 5%;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.profile-pfp {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 3px solid white;
+    object-fit: cover;
+}
+
+.profile-name {
+    font-size: 40px;
+    font-weight: bold;
+    color: #4e4e4e;
+}
+
+/* Profile Body */
+.profile-body {
+    flex-grow: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    color: #4e4e4e;
+    overflow-y: auto; /* Enable scrolling within the main content */
+}
+
+/* Bio Section */
+.profile-bio {
+    margin: 0 5%;
+}
+
+.profile-bio h2 {
+    font-size: 24px;
+    color: #4e4e4e;
+    margin-bottom: 10px;
+}
+
+.profile-bio p {
+    font-size: 16px;
+    color: #4e4e4e;
+}
+
+/* Recent Summits Section */
+.profile-recent-summits {
+    margin: 0 5%;
+}
+
+.profile-recent-summits h2 {
+    font-size: 24px;
+    color: #4e4e4e;
+    margin-bottom: 15px;
+}
+
+.recent-hike {
+    display: flex;
+    align-items: center;
+    background-color: #F0F0F0;
+    border-radius: 15px;
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    margin-bottom: 15px;
+}
+
+.recent-hike-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 10px;
+    margin-right: 15px;
+    object-fit: cover;
+}
+
+.recent-hike-content h3 {
+    font-size: 18px;
+    margin: 0;
+    color: #4e4e4e;
+}
+
+.recent-hike-content p {
+    font-size: 14px;
+    color: #4e4e4e;
+    margin: 5px 0;
+    overflow: hidden; /* Ensures no overflow */
+    display: -webkit-box; /* Uses a flexible layout for the text */
+    -webkit-line-clamp: 2; /* Limits to 2 lines */
+    -webkit-box-orient: vertical; /* Truncates after 2 lines */
+    text-overflow: ellipsis; /* Adds "..." after truncated text */
+}
+
+
+/* Your Progress Section */
+.profile-progress {
+    margin: 0 5%;
+    padding: 30px 20px 20px; /* Add extra padding at the top for spacing */
+    border: 2px solid #cccccc;
+    border-radius: 15px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    position: relative;
+}
+
+.profile-progress h2 {
+    font-size: 24px;
+    color: #4E4E4E;
+    margin-bottom: 20px;
+    text-align: center;
+    position: absolute;
+    top: 0px; /* Slightly above the section */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #ffffff;
+    padding: 0 10px; /* Padding to avoid overlap */
+}
+
+.progress-bar-container {
+    margin-top: 30px; /* Extra margin to push progress bar down */
+    text-align: center;
+    padding-top: 10px;
+}
+
+.progress-bar {
+    width: 90%;
+    height: 20px;
+    background-color: #cccccc;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 0 auto;
+    position: relative;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background-color: #4CAF50;
+    border-radius: 10px;
+    transition: width 0.5s ease;
+}
+
+.progress-percentage {
+    font-size: 14px;
+    color: #4E4E4E;
+    margin-top: 10px;
+}
+
+.progress-details {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.progress-stat {
+    flex: 1;
+    text-align: center;
+}
+
+.stat-title {
+    font-size: 14px;
+    color: #8e8e8e;
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    font-size: 20px;
+    font-weight: bold;
+    color: #4E4E4E;
+}
+
+/* Edit Profile Container */
+.edit-profile-container {
+    height: calc(100vh - 40px); /* Full height minus navbar */
+    overflow-y: auto; /* Enable vertical scrolling */
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    padding: 20px 5%;
+}
+
+/* Overlay for readability */
+.edit-profile-overlay {
+    background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white background */
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    margin: auto;
+    max-width: 800px;
+    margin-bottom: 50px; /* Add space between the overlay and container */
+}
+
+/* Title */
+.edit-profile-overlay h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #4e4e4e;
+}
+
+/* Form */
+.edit-profile-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Form Groups */
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-size: 14px;
+    margin-bottom: 5px;
+    color: #4e4e4e;
+}
+
+.form-group input,
+.form-group textarea {
+    padding: 10px;
+    border: 1px solid #cccccc;
+    border-radius: 5px;
+    font-size: 14px;
+    color: #4e4e4e;
+    width: 100% - 20px;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Textarea Styling */
+textarea {
+    resize: vertical;
+    height: 100px;
+}
+
+/* Submit Button */
+.submit-button {
+    padding: 10px;
+    background-color: #4e4e4e;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    text-align: center;
+    transition: background-color 0.3s ease;
+}
+
+.submit-button:hover {
+    background-color: #6e6e6e;
 }

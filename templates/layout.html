@@ -4,19 +4,35 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>48 Peaks - {% block title %}Page Title{% endblock %}</title>
         <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+        <script src="{{ url_for('static', filename='dropdown.js') }}"></script>
     </head>
     <body>
+        {% if session.get("user_id") %}
         <!-- Navigation Bar -->
         <div class="navigation-bar">
             <div class="logo">48 Peaks</div>
             <div class="nav-links">
-                <a href="#">Home</a>
+                <a href="/">Home</a>
                 <a href="#">Log a Peak!</a>
-                <a href="#">Your Peaks</a>
                 <a href="#">About</a>
             </div>
+            <!-- Profile Section -->
+            <div class="profile-dropdown" id="profileDropdown">
+                {% if profile_photo %}
+                    <img src="/static/images/user_photos/profile_photos/{{profile_photo}}" alt="Profile Photo" class="profile-photo" id="profilePhoto">
+                {% else %}
+                    <img src="/static/images/user_photos/profile_photos/default.jpg" alt="Profile Photo" class="profile-photo" id="profilePhoto">
+                {% endif %}
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <a href="/profile">View Profile</a>
+                    <a href="/mypeaks">My Peaks</a>
+                    <a href="/edit-profile">Edit Profile</a>
+                    <a href="/logout">Log Out</a>
+                </div>
+            </div>
         </div>
-
+        {% endif %}
+        
         <!-- Flash Messages -->
         {% if get_flashed_messages() %}
             <div class="flash-overlay">

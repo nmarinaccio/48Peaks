@@ -3,7 +3,11 @@ from flask_session import Session
 import os
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 from helpers import login_required
+from datetime import datetime
+import pytz
+
 
 DATABASE = "48peaks.db"
 
@@ -30,6 +34,15 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
+
+ALLOWED_EXTENSIONS = {'jpg', 'jpeg'}
+UPLOAD_FOLDER_PHOTO = 'static/images/user_photos/profile_photos'
+UPLOAD_FOLDER_BANNER = 'static/images/user_photos/profile_page_background'
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
 @app.after_request
 def after_request(response):
     """Ensure responses aren't cached"""
@@ -38,14 +51,22 @@ def after_request(response):
     response.headers["Pragma"] = "no-cache"
     return response
 
+@app.context_processor
+def inject_user():
+    if "user_id" in session:
+        user_id = session["user_id"]
+        # Execute a query to fetch the profile_photo from the database
+        db = get_db()
+        user = db.execute("SELECT profile_photo FROM users WHERE id = ?", (user_id,)).fetchone()
+        if user and user["profile_photo"]:
+            return {"profile_photo": user["profile_photo"]}
+    return {"profile_photo": None}  # Default if not logged in or no photo
+
+
 @app.route('/')
 @login_required
 def home():
     return render_template("home.html")
-
-@app.route('/session_test')
-def session_test():
-    return str(session.get("user_id", "No session data"))
 
 @app.route('/login', methods=["GET", "POST"])
 def login():
@@ -123,6 +144,12 @@ def register():
     return redirect(url_for("login"))
 
 
+@app.route('/logout')
+@login_required
+def logout():
+    flash("Successfully logged out", "success")
+    return redirect('login')
+
 @app.route('/mountain/<int:mountain_id>', methods=["GET", "POST"])
 @login_required
 def mountain_page(mountain_id):
@@ -148,9 +175,197 @@ def mountain_page(mountain_id):
             ORDER BY comments.timestamp DESC
         """, (mountain_id,)).fetchall()
 
-        return render_template("mountain_page.html", mountain=mountain, comments=comments)
+        # Format timestamps and convert to EST
+        utc = pytz.utc
+        est = pytz.timezone('US/Eastern')
+        formatted_comments = []
+        for comment in comments:
+            # Parse the UTC timestamp string into a datetime object
+            utc_time = datetime.strptime(comment['timestamp'], "%Y-%m-%d %H:%M:%S")
+            utc_time = utc.localize(utc_time)  # Localize to UTC
+            
+            # Convert to EST
+            est_time = utc_time.astimezone(est)
+            
+            # Format the time as a nice string
+            formatted_time = est_time.strftime("%b %d, %Y, %I:%M %p EST")
+            
+            # Append the comment with the formatted timestamp
+            formatted_comments.append({
+                "id": comment['id'],
+                "timestamp": formatted_time,
+                "message": comment['message'],
+                "username": comment['username'],
+                "profile_photo": comment['profile_photo'],
+            })
+
+        return render_template("mountain_page.html", mountain=mountain, comments=formatted_comments)
+
+    # Handle POST request to add a comment
+    comment = request.form.get("comment")
+    if comment:
+        user_id = session.get("user_id")  # Get the user_id from the session
+        
+        if not user_id:
+            flash("You must be logged in to post a comment.", "error")
+            return redirect(url_for("login"))
+        
+        try:
+            # Insert the comment into the database
+            db.execute(
+                """
+                INSERT INTO comments (user_id, mountain_id, message)
+                VALUES (?, ?, ?)
+                """,
+                (user_id, mountain_id, comment)
+            )
+            db.commit()
+            flash("Comment posted successfully!", "success")
+        except sqlite3.Error as e:
+            flash("An error occurred while posting your comment. Please try again.", "error")
+            print(f"Database error: {e}")
+        
+        # Redirect to the same mountain page to avoid duplicate form submission
+        return redirect(url_for("mountain_page", mountain_id=mountain_id))    
+
+
+
+@app.route('/profile', methods=["GET"])
+@login_required
+def profile_page():
+    db = get_db()
+    user_id = session.get("user_id")
     
-    
+    # Fetch user details
+    user = db.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
+    if not user:
+        flash("User not found.", "error")
+        return redirect(url_for("home"))
+
+    # Fetch progress stats (already handled)
+    peaks_summitted = db.execute("SELECT COUNT(DISTINCT mountain_id) FROM summits WHERE user_id = ?", (user_id,)).fetchone()[0] or 0
+    days_hiked = db.execute("SELECT COUNT(DISTINCT date_hiked) FROM summits WHERE user_id = ?", (user_id,)).fetchone()[0] or 0
+    elevation_hiked = db.execute("""
+        SELECT SUM(m.elevation) 
+        FROM mountains m 
+        JOIN summits s ON m.id = s.mountain_id 
+        WHERE s.user_id = ?
+    """, (user_id,)).fetchone()[0] or 0
+    last_hike = db.execute("""
+        SELECT MAX(date_hiked) 
+        FROM summits 
+        WHERE user_id = ?
+    """, (user_id,)).fetchone()[0]
+
+    # Format last_hike date if it exists
+    if last_hike:
+        last_hike = datetime.strptime(last_hike, "%Y-%m-%d").strftime("%m/%d/%Y")
+    else:
+        last_hike = "No Hikes Logged"
+
+    # Fetch recent summits
+    recent_summits_query = db.execute("""
+        SELECT 
+            s.date_hiked, 
+            COALESCE(s.notes, m.mountain_blurb) AS notes, 
+            m.name AS mountain_name, 
+            m.mountain_photo 
+        FROM summits s
+        JOIN mountains m ON s.mountain_id = m.id
+        WHERE s.user_id = ?
+        ORDER BY s.date_hiked DESC
+        LIMIT 5
+    """, (user_id,))
+    recent_summits = recent_summits_query.fetchall()
+
+    # Truncate notes or blurb to two lines in the backend and format dates
+    def truncate_text(text, max_length=350):
+        return text if len(text) <= max_length else text[:max_length].rsplit(' ', 1)[0] + '...'
+
+    recent_summits = [
+        {
+            "date_hiked": datetime.strptime(summit["date_hiked"], "%Y-%m-%d").strftime("%m/%d/%Y"),
+            "notes": truncate_text(summit["notes"]),
+            "mountain_name": summit["mountain_name"],
+            "mountain_photo": summit["mountain_photo"],
+        }
+        for summit in recent_summits
+    ]
+
+    # Calculate progress percentage
+    summits_progress = round((peaks_summitted / 48) * 100, 2) if peaks_summitted else 0
+
+    return render_template(
+        "profile_page.html", 
+        user=user,
+        peaks_summitted=peaks_summitted,
+        days_hiked=days_hiked,
+        elevation_hiked=elevation_hiked,
+        last_hike=last_hike,
+        summits_progress=summits_progress,
+        recent_summits=recent_summits
+    )
+
+
+@app.route('/edit-profile', methods=["GET", "POST"])
+@login_required
+def edit_profile():
+    db = get_db()
+    user_id = session.get("user_id")
+
+    # Fetch user details for GET
+    user = db.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
+
+    if request.method == "POST":
+        # Validate inputs
+        first_name = request.form.get("first_name")
+        last_name = request.form.get("last_name")
+        email = request.form.get("email")
+        phone_number = request.form.get("phone_number")
+        bio = request.form.get("bio")
+
+        if not first_name or not last_name or not email:
+            flash("First name, last name, and email are required.", "error")
+            return redirect(url_for("edit_profile"))
+
+        # Handle profile photo upload
+        profile_photo = request.files.get("profile_photo")
+        if profile_photo and allowed_file(profile_photo.filename):
+            photo_filename = secure_filename(f"{user_id}.jpg")
+            profile_photo.save(os.path.join(UPLOAD_FOLDER_PHOTO, photo_filename))
+
+        # Handle profile banner upload
+        profile_banner = request.files.get("profile_banner")
+        if profile_banner and allowed_file(profile_banner.filename):
+            banner_filename = secure_filename(f"{user_id}.jpg")
+            profile_banner.save(os.path.join(UPLOAD_FOLDER_BANNER, banner_filename))
+
+        # Update user in database
+        try:
+            db.execute("""
+                UPDATE users 
+                SET first_name = ?, last_name = ?, email = ?, phone_number = ?, bio = ?, profile_photo = ?, profile_banner = ?
+                WHERE id = ?
+            """, (
+                first_name,
+                last_name,
+                email,
+                phone_number,
+                bio,
+                f"{user_id}.jpg" if profile_photo else user["profile_photo"],
+                f"{user_id}.jpg" if profile_banner else user["profile_banner"],
+                user_id
+            ))
+            db.commit()
+            flash("Profile updated successfully!", "success")
+        except Exception as e:
+            flash("An error occurred while updating your profile.", "error")
+            print(e)
+        return redirect(url_for("profile_page"))
+
+    return render_template("edit_profile.html", user=user)
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -1,0 +1,79 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    {{ user.first_name }} {{ user.last_name }}
+{% endblock %}
+
+{% block content %}
+<div class="profile-page-container">
+    <!-- Profile Header -->
+    <div class="profile-header" 
+         style="background-image: linear-gradient(to bottom, rgba(0,0,0,0) 50%, #F0F0F0 90%), url('/static/images/user_photos/profile_page_background/{{ user.profile_banner }}');">
+        <div class="profile-title">
+            <img src="/static/images/user_photos/profile_photos/{{ user.profile_photo }}" 
+                 alt="{{ user.first_name }}'s Profile Photo" class="profile-pfp">
+            <div class="profile-name">{{ user.first_name }} {{ user.last_name }}</div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="profile-body">
+        <!-- Your Progress Section -->
+        <div class="profile-progress">
+            <!-- Progress Bar -->
+            <h2>Your Progress</h2>
+            <div class="progress-bar-container">
+                <div class="progress-bar">
+                    <div class="progress-bar-fill" style="width: {{ summits_progress }}%;"></div>
+                </div>
+                <p class="progress-percentage">{{ summits_progress }}% Summitted</p>
+            </div>
+            
+            <!-- Progress Details -->
+            <div class="progress-details">
+                <div class="progress-stat">
+                    <p class="stat-title">Peaks Summitted</p>
+                    <p class="stat-value">{{ peaks_summitted }}/48</p>
+                </div>
+                <div class="progress-stat">
+                    <p class="stat-title">Days Hiked</p>
+                    <p class="stat-value">{{ days_hiked }}</p>
+                </div>
+                <div class="progress-stat">
+                    <p class="stat-title">Elevation Hiked</p>
+                    <p class="stat-value">{{ elevation_hiked }} ft</p>
+                </div>
+                <div class="progress-stat">
+                    <p class="stat-title">Last Hike</p>
+                    <p class="stat-value">{{ last_hike }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bio Section -->
+        <div class="profile-bio">
+            <h2>Your Bio</h2>
+            <p>{{ user.bio }}</p>
+        </div>
+
+        <!-- Recent Hikes Section -->
+        <div class="profile-recent-summits">
+            <h2>Recent Summits</h2>
+            {% if recent_summits %}
+                {% for summit in recent_summits %}
+                    <div class="recent-hike">
+                        <img src="/static/images/mountain_images/{{ summit.mountain_photo }}" alt="{{ summit.mountain_name }}" class="recent-hike-image">
+                        <div class="recent-hike-content">
+                            <h3>{{ summit.mountain_name }}</h3>
+                            <p>Date Hiked: {{ summit.date_hiked }}</p>
+                            <p>{{ summit.notes }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No hikes logged.</p>
+            {% endif %}
+        </div>        
+    </div>
+</div>
+{% endblock %}

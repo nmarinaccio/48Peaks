@@ -33,7 +33,7 @@
             {% if comments %}
                 {% for comment in comments %}
                 <div class="comment">
-                    <img src="{{ comment.profile_photo }}" alt="{{ comment.username }}'s Profile Picture" class="comment-pfp">
+                    <img src="/static/images/user_photos/profile_photos/{{comment.profile_photo}}" alt="{{ comment.username }}'s Profile Picture" class="comment-pfp">
                     <div class="comment-content">
                         <div class="comment-header">
                             <span class="comment-author">{{ comment.username }}</span>

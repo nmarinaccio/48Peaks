@@ -1,0 +1,67 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Edit Profile
+{% endblock %}
+
+{% block content %}
+<div class="edit-profile-container" style="background-image: url('/static/images/user_photos/profile_page_background/default.jpg');">
+    <div class="edit-profile-overlay">
+        <h2>Edit Your Profile</h2>
+        <form method="post" enctype="multipart/form-data" class="edit-profile-form">
+            <!-- Username (Read-Only) -->
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" value="{{ user.username }}" readonly>
+            </div>
+
+            <!-- First Name -->
+            <div class="form-group">
+                <label for="first_name">First Name</label>
+                <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}" required>
+            </div>
+
+            <!-- Last Name -->
+            <div class="form-group">
+                <label for="last_name">Last Name</label>
+                <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}" required>
+            </div>
+
+            <!-- Email -->
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" value="{{ user.email }}" required>
+            </div>
+
+            <!-- Phone Number -->
+            <div class="form-group">
+                <label for="phone_number">Phone Number</label>
+                <input type="text" id="phone_number" name="phone_number" value="{{ user.phone_number }}">
+            </div>
+
+            <!-- Bio -->
+            <div class="form-group">
+                <label for="bio">Bio</label>
+                <textarea id="bio" name="bio">{{ user.bio }}</textarea>
+            </div>
+
+            <!-- Profile Photo -->
+            <div class="form-group">
+                <label for="profile_photo">Upload Profile Photo</label>
+                <input type="file" id="profile_photo" name="profile_photo" accept=".jpg">
+            </div>
+
+            <!-- Profile Banner -->
+            <div class="form-group">
+                <label for="profile_banner">Upload Profile Banner</label>
+                <input type="file" id="profile_banner" name="profile_banner" accept=".jpg">
+            </div>
+
+            <!-- Submit Button -->
+            <div class="form-group">
+                <button type="submit" class="submit-button">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
