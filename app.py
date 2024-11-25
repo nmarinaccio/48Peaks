@@ -1,4 +1,4 @@
-from flask import Flask, g, render_template, request, redirect, url_for, flash, session
+from flask import Flask, g, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_session import Session
 import os
 import sqlite3
@@ -8,8 +8,10 @@ from helpers import login_required
 from datetime import datetime
 import pytz
 
-
 DATABASE = "48peaks.db"
+
+est = pytz.timezone('US/Eastern')
+utc = pytz.utc
 
 # Configure application
 app = Flask(__name__)
@@ -176,8 +178,6 @@ def mountain_page(mountain_id):
         """, (mountain_id,)).fetchall()
 
         # Format timestamps and convert to EST
-        utc = pytz.utc
-        est = pytz.timezone('US/Eastern')
         formatted_comments = []
         for comment in comments:
             # Parse the UTC timestamp string into a datetime object
@@ -365,6 +365,169 @@ def edit_profile():
 
     return render_template("edit_profile.html", user=user)
 
+
+@app.route('/my-peaks', methods=["GET", "POST"])
+@login_required
+def my_peaks():
+    db = get_db()
+    user_id = session.get("user_id")
+
+    if request.method == "POST":
+        # Handle comment posting logic
+        comment = request.form.get("comment")
+        summit_id = request.form.get("summit_id")
+
+        if not comment or not summit_id:
+            flash("Comment and Summit ID are required.", "error")
+            return redirect(url_for('my_peaks'))
+
+        try:
+            db.execute(
+                """
+                INSERT INTO summit_comments (user_id, summit_id, message)
+                VALUES (?, ?, ?)
+                """,
+                (user_id, summit_id, comment)
+            )
+            db.commit()
+            flash("Comment posted successfully!", "success")
+        except Exception as e:
+            flash("An error occurred while posting your comment.", "error")
+            print(f"Database error: {e}")
+        return redirect(url_for('my_peaks'))
+
+    # Fetch all peaks logged by the user, order by most recent first
+    peaks_query = db.execute("""
+        SELECT 
+            s.id AS summit_id,
+            s.date_hiked,
+            s.notes,
+            m.name AS mountain_name,
+            m.elevation,
+            m.mountain_photo,
+            s.summit_picture
+        FROM summits s
+        JOIN mountains m ON s.mountain_id = m.id
+        WHERE s.user_id = ?
+        ORDER BY s.date_hiked DESC
+    """, (user_id,))
+    peaks = peaks_query.fetchall()
+
+    # Fetch all comments for user's summits
+    comments_query = db.execute("""
+        SELECT 
+            c.summit_id,
+            c.message,
+            c.timestamp,
+            c.edited,
+            c.edited_at,
+            u.username,
+            u.profile_photo
+        FROM summit_comments c
+        JOIN users u ON c.user_id = u.id
+        WHERE c.summit_id IN (SELECT id FROM summits WHERE user_id = ?)
+        ORDER BY c.timestamp ASC
+    """, (user_id,))
+    comments = comments_query.fetchall()
+
+    # Format data for peaks and comments
+    formatted_peaks = []
+    formatted_comments = {}
+
+    for index, peak in enumerate(reversed(peaks), start=1):  # Label oldest peak as 1
+        formatted_peaks.append({
+            "summit_id": peak["summit_id"],
+            "peak_number": index,
+            "date_hiked": datetime.strptime(peak["date_hiked"], "%Y-%m-%d").strftime("%m/%d/%Y"),
+            "notes": peak["notes"],
+            "mountain_name": peak["mountain_name"],
+            "elevation": peak["elevation"],
+            "mountain_photo": peak["mountain_photo"],
+            "summit_picture": peak["summit_picture"] if peak["summit_picture"] else peak["mountain_photo"]
+        })
+
+    for comment in comments:
+        summit_id = comment["summit_id"]
+        if summit_id not in formatted_comments:
+            formatted_comments[summit_id] = []
+        formatted_comments[summit_id].append({
+            "message": comment["message"],
+            "timestamp": datetime.strptime(comment["timestamp"], "%Y-%m-%d %H:%M:%S").strftime("%b %d, %Y, %I:%M %p"),
+            "edited": comment["edited"],
+            "edited_at": comment["edited_at"],
+            "username": comment["username"],
+            "profile_photo": comment["profile_photo"] if comment["profile_photo"] else "default.jpg"
+        })
+
+    # Preload the most recent peak details
+    recent_peak = formatted_peaks[0] if formatted_peaks else None
+
+    num_of_peaks = len(formatted_peaks)
+
+    # Render the template with peaks and comments
+    return render_template(
+        "my_peaks.html",
+        peaks=formatted_peaks,
+        comments=formatted_comments,
+        recent_peak=recent_peak,
+        num_of_peaks=num_of_peaks
+    )
+
+
+@app.route('/get-peak-details/<int:summit_id>', methods=['GET'])
+@login_required
+def get_peak_details(summit_id):
+    db = get_db()
+    user_id = session.get("user_id")
+
+    # Query the summit details
+    summit = db.execute("""
+        SELECT s.id AS summit_id, s.date_hiked, s.notes, s.summit_picture,
+               m.name AS mountain_name, m.elevation, m.mountain_photo, m.mountain_blurb
+        FROM summits s
+        JOIN mountains m ON s.mountain_id = m.id
+        WHERE s.id = ? AND s.user_id = ?
+    """, (summit_id, user_id)).fetchone()
+
+    if not summit:
+        return jsonify({"error": "Summit not found"}), 404
+
+    # Query the comments for this summit
+    comments_query = db.execute("""
+        SELECT sc.message, sc.timestamp, sc.edited, u.username, u.profile_photo
+        FROM summit_comments sc
+        JOIN users u ON sc.user_id = u.id
+        WHERE sc.summit_id = ?
+        ORDER BY sc.timestamp ASC
+    """, (summit_id,))
+    comments = comments_query.fetchall()
+
+    # Format comments
+    formatted_comments = [
+        {
+            "message": comment["message"],
+                    "timestamp": (
+            utc.localize(datetime.strptime(comment["timestamp"], "%Y-%m-%d %H:%M:%S")).astimezone(est).strftime("%b %d, %Y, %I:%M %p %Z")),
+            "edited": comment["edited"],
+            "username": comment["username"],
+            "profile_photo": comment["profile_photo"] if comment["profile_photo"] else "default.jpg"
+        }
+        for comment in comments
+    ]
+
+    # Prepare the JSON response
+    response = {
+        "summit_id": summit["summit_id"],
+        "name": summit["mountain_name"],
+        "date_hiked": datetime.strptime(summit["date_hiked"], "%Y-%m-%d").strftime("%m/%d/%Y"),
+        "notes": summit["notes"],
+        "blurb": summit["mountain_blurb"],
+        "photo": summit["summit_picture"] if summit["summit_picture"] else f'/static/images/mountain_images/{summit["mountain_photo"]}',
+        "image": f'/static/images/mountain_images/{summit["mountain_photo"]}',
+        "comments": formatted_comments
+    }
+
+    return jsonify(response)
 
 
 if __name__ == "__main__":

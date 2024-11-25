@@ -1,0 +1,115 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    My Peaks
+{% endblock %}
+
+{% block content %}
+<div class="my-peaks-container">
+    <!-- Left Section: List of Peaks -->
+    <div class="my-peaks-list">
+        <h2>Your Peaks</h2>
+        {% if peaks %}
+            {% for peak in peaks %}
+            <div class="my-peak-item" onclick="loadPeakDetails('{{ peak.summit_id }}')">
+                <div class="my-peak-list-header" 
+                    style="background-image: linear-gradient(to bottom, rgba(0,0,0,0) 50%, #3E3E3E 100%), url('/static/images/mountain_images/{{ peak.mountain_photo }}');">
+                    <div class="my-peak-name">{{ peak.mountain_name }}</div>
+                </div>
+                <div class="my-peak-details">
+                    <div>
+                        <p class="my-detail-title">Peak Number</p>
+                        <p class="my-detail-value">{{ peak.summit_id }}</p>
+                    </div>
+                    <div>
+                        <p class="my-detail-title">Elevation</p>
+                        <p class="my-detail-value">{{ peak.elevation }} ft</p>
+                    </div>
+                    <div>
+                        <p class="my-detail-title">Date Completed</p>
+                        <p class="my-detail-value">{{ peak.date_hiked }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>No peaks logged yet!</p>
+        {% endif %}
+    </div>
+
+    <!-- Right Section: Peak Details -->
+    <div class="my-peak-details-container" id="peak-details">
+    </div>
+</div>
+
+
+<script>
+    async function loadPeakDetails(summit_id) {
+        try {
+            // Fetch peak details via an API endpoint
+            const response = await fetch(`/get-peak-details/${summit_id}`);
+            if (!response.ok) throw new Error(`Failed to fetch peak details: ${response.status}`);
+            const peakDetails = await response.json();
+
+            // Ensure comments exist and default to an empty array if missing
+            const comments = peakDetails.comments || [];
+            const caption = peakDetails.notes || "";
+
+            // Populate the right section with the retrieved data
+            const detailsContainer = document.getElementById('peak-details');
+            detailsContainer.innerHTML = `
+                <div class="my-peak-log-header" 
+                    style="background-image: linear-gradient(to bottom, rgba(0,0,0,0) 50%, #F0F0F0 90%), url('${peakDetails.image}');">
+                    <div class="my-peaks-information-title">${peakDetails.name}</div>
+                    <div class="my-peaks-information-subtitle">
+                        <img id="my-peak-log-checkmark" src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Eo_circle_green_checkmark.svg/1200px-Eo_circle_green_checkmark.svg.png" height="17px" width="auto" style="position: relative; top: 3px">
+                        <span>You've climbed this peak</span>
+                    </div>
+                </div>
+                <div class="my-peak-body">
+                    <h3>About ${peakDetails.name}</h3>
+                    <p>${peakDetails.blurb}</p>
+                    <h3>Summit Photo</h3>
+                    <img src="${peakDetails.photo}" alt="Summit Photo" class="my-summit-photo">
+                    <p style="text-align: center; font-size: 18px;"><strong>${caption}</strong></p>
+                    
+                    <!-- Comments Section -->
+                    <div class="my-peak-comments">
+                        <h2>Comments</h2>
+                        <div>
+                            ${
+                                comments.length > 0
+                                    ? comments.map(comment => `
+                                        <div class="my-peak-comment">
+                                            <img src="/static/images/user_photos/profile_photos/${comment.profile_photo}" alt="${comment.username}'s Profile Picture" class="my-peak-comment-pfp">
+                                            <div class="my-peak-comment-content">
+                                                <div class="my-peak-comment-header">
+                                                    <span class="my-peak-comment-author">${comment.username}</span>
+                                                    <span class="my-peak-comment-timestamp">${comment.timestamp}</span>
+                                                </div>
+                                                <p class="my-peak-comment-text">${comment.message}</p>
+                                            </div>
+                                        </div>
+                                    `).join('')
+                                    : '<p>No comments yet. Be the first to comment!</p>'
+                            }
+                        </div>
+                        <!-- Comment Input Section -->
+                        <form method="post" class="my-peak-comment-input-section">
+                            <input type="text" placeholder="Add a comment..." class="my-peak-comment-input" name="comment" required>
+                            <input name="summit_id" value="${summit_id}" hidden>
+                            <button class="my-peak-comment-post-button" type="submit">Post</button>
+                        </form>
+                    </div>
+                </div>
+            `;
+        } catch (error) {
+            console.error("Error loading peak details:", error);
+        }
+    }
+
+    // Load the most recent peak's details on page load
+    loadPeakDetails('{{num_of_peaks}}');
+
+</script>
+{% endblock %}
