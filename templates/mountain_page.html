@@ -32,16 +32,21 @@
             <h2>Comments</h2>
             {% if comments %}
                 {% for comment in comments %}
-                <div class="comment">
-                    <img src="/static/images/user_photos/profile_photos/{{comment.profile_photo}}" alt="{{ comment.username }}'s Profile Picture" class="comment-pfp">
-                    <div class="comment-content">
-                        <div class="comment-header">
-                            <span class="comment-author">{{ comment.username }}</span>
-                            <span class="comment-timestamp">{{ comment.timestamp }}</span>
+                    <div class="comment">
+                        <img src="/static/images/user_photos/profile_photos/{{comment.profile_photo}}" alt="{{ comment.username }}'s Profile Picture" class="comment-pfp">
+                        <div class="comment-content">
+                            <div class="comment-header">
+                                <div class="comment-author-group">
+                                    <span class="comment-author">{{ comment.username }}</span>
+                                    {% if comment.summitted == 1 %}
+                                        <img src="/static/images/site_resources/verified.png" alt="Verified" class="verified-icon">
+                                    {% endif %}
+                                </div>
+                                <span class="comment-timestamp">{{ comment.timestamp }}</span>
+                            </div>
+                            <p class="comment-text">{{ comment.message }}</p>
                         </div>
-                        <p class="comment-text">{{ comment.message }}</p>
-                    </div>
-                </div>
+                    </div>                  
                 {% endfor %}
             {% else %}
                 <p>No comments yet. Be the first to comment!</p>

@@ -175,7 +175,7 @@ def mountain_page(mountain_id):
         # Fetch comments for the mountain
         comments = db.execute("""
             SELECT comments.id, comments.timestamp, comments.message, 
-                users.username, users.profile_photo 
+                users.username, users.profile_photo, comments.user_id
             FROM comments
             JOIN users ON comments.user_id = users.id
             WHERE comments.mountain_id = ?
@@ -194,6 +194,14 @@ def mountain_page(mountain_id):
             
             # Format the time as a nice string
             formatted_time = est_time.strftime("%b %d, %Y, %I:%M %p EST")
+
+            summit = db.execute("SELECT * FROM summits WHERE user_id = ? AND mountain_id = ?", (comment['user_id'], mountain_id)).fetchone()
+
+            if summit:
+                summitted = 1
+            else:
+                summitted = 0
+
             
             # Append the comment with the formatted timestamp
             formatted_comments.append({
@@ -202,6 +210,7 @@ def mountain_page(mountain_id):
                 "message": comment['message'],
                 "username": comment['username'],
                 "profile_photo": comment['profile_photo'],
+                "summitted": summitted
             })
 
         return render_template("mountain_page.html", mountain=mountain, comments=formatted_comments)

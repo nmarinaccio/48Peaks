@@ -389,14 +389,26 @@ body {
 
 .comment-header {
     display: flex;
-    justify-content: space-between;
-    margin-bottom: 5px;
+    align-items: center; /* Align items vertically */
+    justify-content: space-between; /* Push the timestamp to the right */
+}
+
+.comment-author-group {
+    display: flex;
+    align-items: center; /* Align username and verified icon in a row */
+    gap: 5px; /* Space between username and icon */
 }
 
 .comment-author {
     font-weight: bold;
     font-size: 16px;
     color: #4e4e4e;
+}
+
+.verified-icon {
+    width: 16px; /* Icon size */
+    height: 16px;
+    vertical-align: middle;
 }
 
 .comment-timestamp {
@@ -1036,3 +1048,12 @@ textarea {
     background-color: #6E6E6E;
     transform: scale(1.05);
 }
+
+.verified-icon {
+    width: 16px; /* Adjust size */
+    height: 16px;
+    margin-right: 5px; /* Space between the icon and username */
+    display: inline-block;
+    vertical-align: top; /* Align to the top of the line for a left-aligned effect */
+}
+
