@@ -201,7 +201,6 @@ def mountain_page(mountain_id):
                 summitted = 1
             else:
                 summitted = 0
-
             
             # Append the comment with the formatted timestamp
             formatted_comments.append({
@@ -487,6 +486,70 @@ def my_peaks():
         num_of_peaks=num_of_peaks
     )
 
+@app.route('/post', methods=['GET', 'POST'])
+@login_required
+def post():
+    db = get_db()
+    user_id = session.get("user_id")
+
+    if request.method == 'POST':
+        # Retrieve form inputs
+        mountain_id = request.form.get('mountain_id')
+        friends = request.form.getlist('friends')  # List of friend IDs
+        date_hiked = request.form.get('date_hiked')
+        notes = request.form.get('notes')
+        summit_picture = None
+
+        # Check required fields
+        if not mountain_id or not date_hiked:
+            flash("Mountain and date are required fields.", "error")
+            return redirect(url_for('post'))
+
+        # Handle image upload
+        if 'summit_picture' in request.files:
+            file = request.files['summit_picture']
+            if file and file.filename:
+                filename = secure_filename(file.filename)
+                summit_picture = f"/static/images/user_photos/summit_photos/{user_id}/{mountain_id}.jpg"
+                file_path = os.path.join('static', 'images', 'user_photos', 'summit_photos', str(user_id))
+                os.makedirs(file_path, exist_ok=True)  # Ensure directory exists
+                file.save(os.path.join(file_path, f"{mountain_id}.jpg"))
+
+        try:
+            # Insert the main user's hike
+            db.execute("""
+                INSERT INTO summits (user_id, mountain_id, date_hiked, notes, summit_picture)
+                VALUES (?, ?, ?, ?, ?)
+            """, (user_id, mountain_id, date_hiked, notes, summit_picture))
+            db.commit()
+
+            # Get the new post ID
+            post_id = db.execute("SELECT last_insert_rowid()").fetchone()[0]
+
+            # Insert rows for friends
+            for friend_id in friends:
+                db.execute("""
+                    INSERT INTO summits (user_id, mountain_id, date_hiked, notes, summit_picture)
+                    VALUES (?, ?, ?, ?, ?)
+                """, (friend_id, mountain_id, date_hiked, notes, summit_picture))
+                db.commit()
+
+            flash("Post created successfully!", "success")
+            return redirect(url_for('post_details', post_id=post_id))
+        except Exception as e:
+            flash(f"An error occurred: {e}", "error")
+
+    # Populate mountains dropdown
+    mountains = db.execute("""
+        SELECT id, name FROM mountains 
+        WHERE id NOT IN (SELECT mountain_id FROM summits WHERE user_id = ?)
+    """, (user_id,)).fetchall()
+
+    return render_template('post.html', mountains=mountains)
+
+
+
+# Web service APIs
 
 @app.route('/get-peak-details/<int:summit_id>', methods=['GET'])
 @login_required
@@ -542,6 +605,30 @@ def get_peak_details(summit_id):
     }
 
     return jsonify(response)
+
+
+@app.route('/friend-search')
+@login_required
+def friend_search():
+    db = get_db()
+    user_id = session.get("user_id")
+    query = request.args.get('query', '').strip()
+
+    if not query:
+        return jsonify([])  # Return empty array if no query is provided
+
+    # Search for users whose names match the query (case-insensitive) and exclude the current user
+    friends = db.execute("""
+        SELECT id, first_name || ' ' || last_name AS name
+        FROM users
+        WHERE (first_name LIKE ? OR last_name LIKE ?) AND id != ?
+        ORDER BY first_name ASC
+    """, (f"%{query}%", f"%{query}%", user_id)).fetchall()
+
+    # Convert query results to JSON
+    friend_list = [{"id": friend["id"], "name": friend["name"]} for friend in friends]
+
+    return jsonify(friend_list)
 
 
 if __name__ == "__main__":

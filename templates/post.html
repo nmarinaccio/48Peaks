@@ -1,0 +1,126 @@
+{% extends "layout.html" %}
+
+{% block title %}Log a Summit{% endblock %}
+
+{% block content %}
+<div class="background-container">
+    <div class="post-container">
+        <form class="post-form" enctype="multipart/form-data" method="POST">
+            <!-- Mountain Dropdown -->
+            <div class="form-group">
+                <label for="mountain">Select a Peak:</label>
+                <select id="mountain" name="mountain_id" required>
+                    <option value="">Choose a Peak...</option>
+                    {% for mountain in mountains %}
+                    <option value="{{ mountain.id }}">{{ mountain.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Friends Input -->
+            <div class="form-group">
+                <label for="friends">Add Friends:</label>
+                <input id="friend-search" type="text" placeholder="Search for friends..." autocomplete="off">
+                <div id="friend-list"></div>
+            </div>
+
+            <!-- Image Upload -->
+            <div class="form-group">
+                <label for="summit-photo">Summit Photo:</label>
+                <input id="summit-photo" type="file" name="photo" accept="image/*">
+                <div id="image-preview" class="image-preview hidden">
+                    <img id="preview-img" src="" alt="Preview">
+                </div>
+            </div>
+
+            <!-- Caption -->
+            <div class="form-group">
+                <label for="caption">Caption:</label>
+                <textarea id="caption" name="notes" rows="3" placeholder="Add a caption..."></textarea>
+            </div>
+
+            <!-- Date Picker -->
+            <div class="form-group">
+                <label for="date">Date of Summit:</label>
+                <input id="date" type="date" name="date_hiked" value="{{ current_date }}" required>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="submit-button">Log Summit</button>
+        </form>
+    </div>
+</div>
+
+<script>
+
+        // Friends Autocomplete Script
+        document.getElementById('friendSearch').addEventListener('input', async function() {
+        const query = this.value;
+        const response = await fetch(`/friend-search?query=${query}`);
+        const suggestions = await response.json();
+        const suggestionsContainer = document.getElementById('friendSuggestions');
+
+        suggestionsContainer.innerHTML = '';
+        suggestions.forEach(friend => {
+            const div = document.createElement('div');
+            div.textContent = friend.name;
+            div.className = 'suggestion';
+            div.onclick = function() {
+                const selected = document.createElement('div');
+                selected.textContent = friend.name;
+                selected.className = 'selected-friend';
+                selected.dataset.friendId = friend.id;
+
+                const selectedFriends = document.getElementById('selectedFriends');
+                selectedFriends.appendChild(selected);
+
+                document.getElementById('friendSearch').value = '';
+                suggestionsContainer.innerHTML = '';
+            };
+            suggestionsContainer.appendChild(div);
+        });
+    });
+
+    // Summit Photo Preview
+    document.getElementById('summit_picture').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('photoPreview').src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Random Background Image for the Outer Container
+        const backgroundContainer = document.querySelector('.background-container');
+        const images = [
+            '/static/images/background_images/image1.jpg',
+            '/static/images/background_images/image2.jpg',
+            '/static/images/background_images/image3.jpg'
+        ];
+        const randomImage = images[Math.floor(Math.random() * images.length)];
+        backgroundContainer.style.backgroundImage = `url('${randomImage}')`;
+
+        // Image Preview Logic
+        const photoInput = document.getElementById('summit-photo');
+        const previewContainer = document.getElementById('image-preview');
+        const previewImage = document.getElementById('preview-img');
+
+        photoInput.addEventListener('change', () => {
+            const file = photoInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewImage.src = e.target.result;
+                    previewContainer.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                previewContainer.classList.add('hidden');
+                previewImage.src = '';
+            }
+        });
+    });
+</script>
+{% endblock %}
