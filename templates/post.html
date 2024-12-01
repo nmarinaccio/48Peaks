@@ -5,8 +5,9 @@
 {% block content %}
 <div class="background-container">
     <div class="post-container">
-        <form class="post-form" enctype="multipart/form-data" method="POST">
+        <form id="summit-post-form" class="post-form" enctype="multipart/form-data" method="POST">
             <!-- Mountain Dropdown -->
+            <h1 style="color: #4E4E4E; text-align: center; padding: 10px;">Log a Hike!</h1>
             <div class="form-group">
                 <label for="mountain">Select a Peak:</label>
                 <select id="mountain" name="mountain_id" required>
@@ -22,12 +23,13 @@
                 <label for="friends">Add Friends:</label>
                 <input id="friend-search" type="text" placeholder="Search for friends..." autocomplete="off">
                 <div id="friend-list"></div>
-            </div>
+                <div id="selected-friends"></div>
+            </div>            
 
             <!-- Image Upload -->
             <div class="form-group">
                 <label for="summit-photo">Summit Photo:</label>
-                <input id="summit-photo" type="file" name="photo" accept="image/*">
+                <input id="summit-photo" type="file" name="summit-photo" accept="image/*">
                 <div id="image-preview" class="image-preview hidden">
                     <img id="preview-img" src="" alt="Preview">
                 </div>
@@ -46,7 +48,7 @@
             </div>
 
             <!-- Submit Button -->
-            <button type="submit" class="submit-button">Log Summit</button>
+            <button id="submit-button" type="submit" class="submit-button">Log Summit</button>
         </form>
     </div>
 </div>
@@ -54,39 +56,76 @@
 <script>
 
         // Friends Autocomplete Script
-        document.getElementById('friendSearch').addEventListener('input', async function() {
-        const query = this.value;
-        const response = await fetch(`/friend-search?query=${query}`);
-        const suggestions = await response.json();
-        const suggestionsContainer = document.getElementById('friendSuggestions');
+        document.getElementById('friend-search').addEventListener('input', async function () {
+            const query = this.value;
+            if (!query) {
+                document.getElementById('friend-list').innerHTML = '';
+                return;
+            }
 
-        suggestionsContainer.innerHTML = '';
-        suggestions.forEach(friend => {
-            const div = document.createElement('div');
-            div.textContent = friend.name;
-            div.className = 'suggestion';
-            div.onclick = function() {
-                const selected = document.createElement('div');
-                selected.textContent = friend.name;
-                selected.className = 'selected-friend';
-                selected.dataset.friendId = friend.id;
+            const response = await fetch(`/friend-search?query=${encodeURIComponent(query)}`);
+            const suggestions = await response.json();
+            const suggestionsContainer = document.getElementById('friend-list');
 
-                const selectedFriends = document.getElementById('selectedFriends');
-                selectedFriends.appendChild(selected);
+            suggestionsContainer.innerHTML = '';
+            suggestions.forEach(friend => {
+                const div = document.createElement('div');
+                div.textContent = friend.name;
+                div.className = 'suggestion';
+                div.onclick = function () {
+                    const selectedFriendsContainer = document.getElementById('selected-friends');
 
-                document.getElementById('friendSearch').value = '';
-                suggestionsContainer.innerHTML = '';
-            };
-            suggestionsContainer.appendChild(div);
+                    // Check if the friend is already added
+                    if (selectedFriendsContainer.querySelector(`[data-friend-id="${friend.id}"]`)) {
+                        return; // Don't add duplicates
+                    }
+
+                    const selected = document.createElement('div');
+                    selected.textContent = friend.name;
+                    selected.className = 'selected-friend';
+                    selected.dataset.friendId = friend.id;
+
+                    // Add functionality to remove friend
+                    selected.addEventListener('click', function () {
+                        selectedFriendsContainer.removeChild(selected);
+                        updateHiddenFriendsInput();
+                    });
+
+                    selectedFriendsContainer.appendChild(selected);
+                    updateHiddenFriendsInput();
+
+                    // Clear input and suggestions
+                    document.getElementById('friend-search').value = '';
+                    suggestionsContainer.innerHTML = '';
+                };
+                suggestionsContainer.appendChild(div);
+            });
         });
-    });
+
+        // Function to update the hidden input with the list of friend IDs
+        function updateHiddenFriendsInput() {
+            const selectedFriends = document.querySelectorAll('.selected-friend');
+            const friendIds = Array.from(selectedFriends).map(friend => friend.dataset.friendId);
+            console.log(friendIds);
+
+            let hiddenInput = document.getElementById('hidden-friends-input');
+            if (!hiddenInput) {
+                hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'friends'; // Matches the backend's request.form.getlist
+                hiddenInput.id = 'hidden-friends-input';
+                document.getElementById('summit-post-form').appendChild(hiddenInput);
+            }
+            hiddenInput.value = JSON.stringify(friendIds); // Serialize the array into a JSON string
+        }
+
 
     // Summit Photo Preview
-    document.getElementById('summit_picture').addEventListener('change', function(event) {
+    document.getElementById('summit-photo').addEventListener('change', function(event) {
         const file = event.target.files[0];
         const reader = new FileReader();
         reader.onload = function(e) {
-            document.getElementById('photoPreview').src = e.target.result;
+            document.getElementById('image-preview').src = e.target.result;
         };
         reader.readAsDataURL(file);
     });
@@ -95,9 +134,7 @@
         // Random Background Image for the Outer Container
         const backgroundContainer = document.querySelector('.background-container');
         const images = [
-            '/static/images/background_images/image1.jpg',
-            '/static/images/background_images/image2.jpg',
-            '/static/images/background_images/image3.jpg'
+            '/static/images/background_images/winter_washington.jpeg'
         ];
         const randomImage = images[Math.floor(Math.random() * images.length)];
         backgroundContainer.style.backgroundImage = `url('${randomImage}')`;
@@ -122,5 +159,6 @@
             }
         });
     });
+
 </script>
 {% endblock %}

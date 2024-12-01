@@ -1,4 +1,5 @@
 # Standard library imports
+import json
 import os
 import sqlite3
 from datetime import datetime
@@ -42,7 +43,7 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 
-ALLOWED_EXTENSIONS = {'jpg', 'jpeg'}
+ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'png', 'wpeb'}
 UPLOAD_FOLDER_PHOTO = 'static/images/user_photos/profile_photos'
 UPLOAD_FOLDER_BANNER = 'static/images/user_photos/profile_page_background'
 
@@ -256,7 +257,7 @@ def profile_page():
         return redirect(url_for("home"))
 
     # Fetch progress stats (already handled)
-    peaks_summitted = db.execute("SELECT COUNT(DISTINCT mountain_id) FROM summits WHERE user_id = ?", (user_id,)).fetchone()[0] or 0
+    peaks_summitted = db.execute("SELECT COUNT(DISTINCT mountain_id) FROM summits WHERE user_id = ? AND mountain_id != 0", (user_id,)).fetchone()[0] or 0
     days_hiked = db.execute("SELECT COUNT(DISTINCT date_hiked) FROM summits WHERE user_id = ?", (user_id,)).fetchone()[0] or 0
     elevation_hiked = db.execute("""
         SELECT SUM(m.elevation) 
@@ -286,6 +287,7 @@ def profile_page():
         FROM summits s
         JOIN mountains m ON s.mountain_id = m.id
         WHERE s.user_id = ?
+        AND s.mountain_id != 0
         ORDER BY s.date_hiked DESC
         LIMIT 5
     """, (user_id,))
@@ -422,7 +424,8 @@ def my_peaks():
         FROM summits s
         JOIN mountains m ON s.mountain_id = m.id
         WHERE s.user_id = ?
-        ORDER BY s.date_hiked DESC
+        AND s.mountain_id != 0
+        ORDER BY s.id
     """, (user_id,))
     peaks = peaks_query.fetchall()
 
@@ -495,10 +498,16 @@ def post():
     if request.method == 'POST':
         # Retrieve form inputs
         mountain_id = request.form.get('mountain_id')
-        friends = request.form.getlist('friends')  # List of friend IDs
         date_hiked = request.form.get('date_hiked')
         notes = request.form.get('notes')
         summit_picture = None
+
+        # Retrieve friend IDs from the JSON string
+        friends_json = request.form.get('friends', '[]')  # Default to an empty list if not provided
+        try:
+            friends = json.loads(friends_json)
+        except json.JSONDecodeError:
+            friends = []
 
         # Check required fields
         if not mountain_id or not date_hiked:
@@ -506,36 +515,61 @@ def post():
             return redirect(url_for('post'))
 
         # Handle image upload
-        if 'summit_picture' in request.files:
-            file = request.files['summit_picture']
+        if 'summit-photo' in request.files:
+            file = request.files['summit-photo']
             if file and file.filename:
                 filename = secure_filename(file.filename)
                 summit_picture = f"/static/images/user_photos/summit_photos/{user_id}/{mountain_id}.jpg"
                 file_path = os.path.join('static', 'images', 'user_photos', 'summit_photos', str(user_id))
                 os.makedirs(file_path, exist_ok=True)  # Ensure directory exists
                 file.save(os.path.join(file_path, f"{mountain_id}.jpg"))
+                print("Saving file to:", os.path.join(file_path, f"{mountain_id}.jpg"))
+
+        # Fetch the latest post_id
+        check_post_id = db.execute("SELECT post_id FROM summits ORDER BY post_id DESC LIMIT 1").fetchone()
+
+        # Determine the new post_id
+        if check_post_id and check_post_id['post_id'] is not None:
+            new_post_id = check_post_id['post_id'] + 1
+        else:
+            new_post_id = 1  # Default to 1 if there are no existing rows
 
         try:
             # Insert the main user's hike
             db.execute("""
-                INSERT INTO summits (user_id, mountain_id, date_hiked, notes, summit_picture)
-                VALUES (?, ?, ?, ?, ?)
-            """, (user_id, mountain_id, date_hiked, notes, summit_picture))
+                INSERT INTO summits (user_id, mountain_id, date_hiked, notes, summit_picture, post_id)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """, (user_id, mountain_id, date_hiked, notes, summit_picture, new_post_id))
             db.commit()
-
-            # Get the new post ID
-            post_id = db.execute("SELECT last_insert_rowid()").fetchone()[0]
 
             # Insert rows for friends
             for friend_id in friends:
-                db.execute("""
-                    INSERT INTO summits (user_id, mountain_id, date_hiked, notes, summit_picture)
-                    VALUES (?, ?, ?, ?, ?)
-                """, (friend_id, mountain_id, date_hiked, notes, summit_picture))
+                # Check if a row with the same friend_id and mountain_id already exists
+                existing_entry = db.execute("""
+                    SELECT 1 FROM summits 
+                    WHERE user_id = ? AND mountain_id = ?
+                    LIMIT 1
+                """, (friend_id, mountain_id)).fetchone()
+
+                if existing_entry:
+                    # If a matching row exists, insert a new row with only friend_id, post_id, and mountain_id = 0
+                    db.execute("""
+                        INSERT INTO summits (user_id, mountain_id, date_hiked, notes, summit_picture, post_id)
+                        VALUES (?, 0, ?, NULL, NULL, ?)
+                    """, (friend_id, date_hiked, new_post_id))
+                else:
+                    # Otherwise, insert the full row
+                    db.execute("""
+                        INSERT INTO summits (user_id, mountain_id, date_hiked, notes, summit_picture, post_id)
+                        VALUES (?, ?, ?, ?, ?, ?)
+                    """, (friend_id, mountain_id, date_hiked, notes, summit_picture, new_post_id))
+                
+                # Commit after each operation
                 db.commit()
 
+
             flash("Post created successfully!", "success")
-            return redirect(url_for('post_details', post_id=post_id))
+            return redirect(url_for('home', post_id=new_post_id))
         except Exception as e:
             flash(f"An error occurred: {e}", "error")
 
@@ -546,6 +580,9 @@ def post():
     """, (user_id,)).fetchall()
 
     return render_template('post.html', mountains=mountains)
+
+
+
 
 
 

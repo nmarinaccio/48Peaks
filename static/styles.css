@@ -956,6 +956,9 @@ textarea {
     max-width: 100%;
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    display: block; /* Ensures the element is treated as a block */
+    margin-left: auto;
+    margin-right: auto; /* Centers the element horizontally */
 }
 
 /* Comments Section */
@@ -1064,7 +1067,6 @@ textarea {
     min-height: 100vh; /* Full viewport height */
     display: flex;
     justify-content: center;
-    align-items: center;
     padding: 20px;
 }
 
@@ -1077,7 +1079,15 @@ textarea {
     width: 100%;
     max-width: 600px;
     overflow-y: auto; /* Scrollable for form content */
-    max-height: 90vh; /* Ensure the form doesn't exceed the viewport height */
+    max-height: 75vh; /* Ensure the form doesn't exceed the viewport height */
+
+    /* Hide scrollbar */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+.post-container::-webkit-scrollbar {
+    display: none; /* Webkit (Chrome, Safari, Edge) */
 }
 
 /* Form Styling */
@@ -1122,6 +1132,56 @@ select:hover {
     border-color: #777;
 }
 
+#friend-search {
+    width: 100% - 20px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+#friend-list {
+    border: 0px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    max-height: 150px;
+    overflow-y: auto;
+    width: 100%; /* Ensures it matches the width of the input form */
+    z-index: 1000; /* Ensures it's above other elements */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.suggestion {
+    padding: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #4E4E4E; /* Set the text color */
+}
+
+.suggestion:hover {
+    background-color: #f0f0f0; /* Highlight on hover */
+}
+
+.selected-friend {
+    display: inline-block;
+    background-color: #e0e0e0;
+    color: #4E4E4E; /* Set the text color */
+    padding: 5px 10px;
+    margin: 5px;
+    border-radius: 15px;
+    font-size: 14px;
+    cursor: default;
+}
+
+.selected-friend::after {
+    content: '✖';
+    margin-left: 8px;
+    font-weight: bold;
+    color: #ff0000;
+    cursor: pointer;
+}
+
+
 /* Image Preview */
 .image-preview {
     display: flex;
@@ -1154,6 +1214,7 @@ select:hover {
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.2s ease;
+    margin: 20px 0px;
 }
 
 .submit-button:hover {
