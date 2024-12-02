@@ -1221,3 +1221,232 @@ select:hover {
     background-color: #45a049;
     transform: scale(1.02);
 }
+
+/* Post Overlay Div CSS */
+
+/* Overlay Background */
+.post-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    overflow: hidden;
+}
+
+/* Hidden by Default */
+.post-overlay.hidden {
+    display: none;
+}
+
+/* Overlay Content */
+.post-overlay-content {
+    background-color: white;
+    width: 80%;
+    height: 80%;
+    display: flex;
+    flex-direction: row;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Left Section */
+.post-overlay-left {
+    width: 60%;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
+
+/* Right Section */
+.post-overlay-right {
+    width: 40%;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    border-left: 1px solid #ccc;
+    position: relative;
+}
+
+/* Left Header */
+.post-overlay-header {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #ccc;
+}
+
+.post-overlay-pfp {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+    border: 2px solid #4E4E4E;
+}
+
+.post-overlay-username {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Post Image */
+.post-overlay-image-container {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f9f9f9;
+    max-height: 70%;
+}
+
+.post-overlay-post-image {
+    width: 100%; /* Ensures the image spans the full width of the container */
+    height: 100%; /* Ensures the image spans the full height of the container */
+    object-fit: cover; /* Ensures the image covers the container while maintaining aspect ratio */
+}
+
+
+/* Footer */
+.post-overlay-footer {
+    border-top: 1px solid #ccc;
+    padding: 15px;
+}
+
+.post-overlay-likes-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #4E4E4E;
+    font-weight: bold;
+}
+
+.post-overlay-like-icon {
+    width: 30px; /* Adjust the size of the heart icon */
+    height: 30px;
+    vertical-align: middle; /* Aligns the image with the text */
+    cursor: pointer; /* Adds a pointer cursor on hover */
+}
+
+.post-overlay-caption-section {
+    padding: 10px 0px;
+}
+
+.post-overlay-caption-section p {
+    margin: 0;
+    color: #555;
+    word-wrap: break-word; /* Ensures long words break onto the next line */
+    white-space: normal; /* Allows text to wrap normally */
+    overflow-wrap: break-word; /* Fallback for better browser support */
+}
+
+/* Right Comments Section */
+.post-overlay-comments-section {
+    flex-grow: 1;
+    overflow-y: auto;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+    padding: 15px;
+    padding-top: 5%;
+    padding-bottom: 30px;
+    margin-bottom: 7%;
+    word-wrap: break-word; /* Break long words to prevent overflow */
+    word-break: break-word; /* Break long words if necessary */
+}
+
+.post-overlay-comment {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
+
+.post-overlay-comment-pfp {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 10px;
+    object-fit: cover;
+    border: 2px solid #4E4E4E;
+}
+
+.post-overlay-comment-content {
+    flex-grow: 1;
+    overflow: hidden; /* Prevent horizontal overflow */
+    word-wrap: break-word; /* Break long words into the next line */
+    word-break: break-word;
+}
+
+.post-overlay-comment-content p {
+    margin: 5px 0 0;
+    color: #555;
+    line-height: 1.5; /* Space between lines for readability */
+    white-space: normal; /* Ensure text wraps properly */
+    overflow-wrap: break-word; /* Break text gracefully */
+}
+
+.post-overlay-comment-username {
+    font-weight: bold;
+    font-size: 14px;
+    color: #333;
+}
+
+/* Comment Input Section */
+.post-overlay-comment-input-section {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    flex-grow: 1;
+    width: 100%;
+    height: 7%;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-top: 1px solid #ccc;
+}
+
+.post-overlay-comment-input {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 14px;
+    resize: none;
+    outline: none;
+    height: 45%;
+    width: 77%;
+}
+
+.post-overlay-comment-post-button {
+    background-color: #4E4E4E;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    margin-left: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.post-overlay-comment-post-button:hover {
+    background-color: #3F3F3F;
+}
+
+/* Close Button */
+.post-overlay-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background-color: transparent;
+    color: #333;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+}

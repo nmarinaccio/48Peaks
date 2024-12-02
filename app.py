@@ -147,6 +147,15 @@ def register():
         flash("An error occurred while registering. Please try again.", "error")
         return render_template("register.html")
     
+    user_id = db.execute("SELECT last_insert_rowid()").fetchone()[0]
+
+    # Directory to store user photos
+    base_dir = "/static/images/user_photos/summit_photos/"
+    user_folder = os.path.join(base_dir, str(user_id))
+
+    # Create the user's folder
+    os.makedirs(user_folder, exist_ok=True)
+
     # 5. Redirect to the login page
     flash("Registration successful! Please log in.", "success")
     return redirect(url_for("login"))
@@ -280,6 +289,7 @@ def profile_page():
     # Fetch recent summits
     recent_summits_query = db.execute("""
         SELECT 
+            s.id AS id,
             s.date_hiked, 
             COALESCE(s.notes, m.mountain_blurb) AS notes, 
             m.name AS mountain_name, 
@@ -299,6 +309,7 @@ def profile_page():
 
     recent_summits = [
         {
+            "post_id": summit["id"],
             "date_hiked": datetime.strptime(summit["date_hiked"], "%Y-%m-%d").strftime("%m/%d/%Y"),
             "notes": truncate_text(summit["notes"]),
             "mountain_name": summit["mountain_name"],
@@ -510,8 +521,8 @@ def post():
             friends = []
 
         # Check required fields
-        if not mountain_id or not date_hiked:
-            flash("Mountain and date are required fields.", "error")
+        if not mountain_id or not date_hiked or not notes:
+            flash("Mountain, date, caption are required fields.", "error")
             return redirect(url_for('post'))
 
         # Handle image upload
@@ -580,9 +591,6 @@ def post():
     """, (user_id,)).fetchall()
 
     return render_template('post.html', mountains=mountains)
-
-
-
 
 
 
@@ -666,6 +674,198 @@ def friend_search():
     friend_list = [{"id": friend["id"], "name": friend["name"]} for friend in friends]
 
     return jsonify(friend_list)
+
+
+@app.route('/post-search')
+@login_required
+def post_search():
+    db = get_db()
+    current_user_id = session.get("user_id")
+    post_id = request.args.get('post_id', '').strip()
+
+    if not post_id:
+        return jsonify({"code": 404, "message": "Post ID not provided", "data": {}})
+
+    # Fetch the post information
+    post_info = db.execute(
+        """
+        SELECT 
+            s.id, 
+            s.user_id, 
+            s.date_hiked, 
+            s.notes, 
+            s.summit_picture,
+            u.username AS poster_username,
+            u.profile_photo AS poster_profile_photo
+        FROM summits s
+        JOIN users u ON s.user_id = u.id
+        WHERE s.id = ? AND s.mountain_id != 0
+        """,
+        (post_id,)
+    ).fetchone()
+
+    if not post_info:
+        return jsonify({"code": 404, "message": "Post not found", "data": {}})
+
+    # Fetch the comments associated with the post
+    comments = db.execute(
+        """
+        SELECT 
+            u.username, 
+            u.profile_photo, 
+            s.timestamp, 
+            s.message 
+        FROM summit_comments s
+        JOIN users u ON s.user_id = u.id
+        WHERE s.summit_id = ?
+        ORDER BY s.timestamp ASC
+        """,
+        (post_info["id"],)
+    ).fetchall()
+
+    unformatted_likes = db.execute(
+        """
+        SELECT 
+            COUNT(DISTINCT user_id) AS count, -- Total number of unique likes
+            GROUP_CONCAT(user_id) AS user_ids -- Concatenate user IDs for checking
+        FROM post_likes
+        WHERE post_id = ?
+        """,
+        (post_info["id"],)
+    ).fetchone()
+
+    # Extract like count
+    like_count = unformatted_likes["count"] if unformatted_likes and unformatted_likes["count"] else 0
+
+    # Check if the current user has liked the post
+    current_user_liked = 0
+    if unformatted_likes and unformatted_likes["user_ids"]:
+        liked_user_ids = unformatted_likes["user_ids"].split(",")  # Convert to list
+        if str(current_user_id) in liked_user_ids:
+            current_user_liked = 1
+
+    # Format the comments
+    formatted_comments = [
+        {
+            "username": comment["username"],
+            "profile_photo": comment["profile_photo"] if comment["profile_photo"] else "default.jpg",
+            "timestamp": comment["timestamp"],
+            "message": comment["message"]
+        }
+        for comment in comments
+    ]
+
+    # Prepare the response
+    return_json = {
+        "code": 200,
+        "data": {
+            "poster": {
+                "user_id": post_info["user_id"],
+                "username": post_info["poster_username"],
+                "profile_photo": post_info["poster_profile_photo"] if post_info["poster_profile_photo"] else "default.jpg"
+            },
+            "date": post_info["date_hiked"],
+            "likes": like_count,
+            "user_liked": current_user_liked,
+            "caption": post_info["notes"],
+            "picture": post_info["summit_picture"],
+            "comments": formatted_comments
+        }
+    }
+
+    return jsonify(return_json)
+
+@app.route('/toggle-like', methods=['POST'])
+@login_required
+def toggle_like():
+    db = get_db()
+    user_id = session["user_id"]
+    post_id = request.json.get("post_id")
+
+    if not post_id:
+        return jsonify({"code": 400, "message": "Post ID is required"}), 400
+
+    try:
+        # Check if the user already liked the post
+        existing_like = db.execute(
+            "SELECT id FROM post_likes WHERE post_id = ? AND user_id = ?",
+            (post_id, user_id)
+        ).fetchone()
+
+        if existing_like:
+            # If already liked, remove the like
+            db.execute("DELETE FROM post_likes WHERE id = ?", (existing_like["id"],))
+            liked = False
+        else:
+            # If not liked, add a new like
+            db.execute(
+                "INSERT INTO post_likes (post_id, user_id) VALUES (?, ?)",
+                (post_id, user_id)
+            )
+            liked = True
+
+        db.commit()
+
+        # Get the updated like count
+        like_count = db.execute(
+            "SELECT COUNT(*) AS count FROM post_likes WHERE post_id = ?",
+            (post_id,)
+        ).fetchone()["count"]
+
+        return jsonify({"code": 200, "liked": liked, "like_count": like_count}), 200
+
+    except Exception as e:
+        print(f"Error toggling like: {e}")
+        return jsonify({"code": 500, "message": "Internal Server Error"}), 500
+
+@app.route('/post-comment', methods=['POST'])
+@login_required
+def post_comment():
+    db = get_db()
+    user_id = session["user_id"]
+
+    try:
+        # Ensure request is JSON
+        if not request.is_json:
+            return jsonify({"code": 400, "message": "Invalid request format. JSON expected."}), 400
+
+        # Extract the required data
+        post_id = request.json.get("post_id")
+        message = request.json.get("message")
+
+        if not post_id or not message:
+            return jsonify({"code": 400, "message": "Post ID and message are required."}), 400
+
+        # Insert the comment into the database
+        db.execute(
+            """
+            INSERT INTO summit_comments (summit_id, user_id, message)
+            VALUES (?, ?, ?)
+            """,
+            (post_id, user_id, message)
+        )
+        db.commit()
+
+        # Get the user's username and profile photo for the comment
+        user_info = db.execute(
+            "SELECT username, profile_photo FROM users WHERE id = ?",
+            (user_id,)
+        ).fetchone()
+
+        return jsonify({
+            "code": 200,
+            "message": "Comment posted successfully.",
+            "data": {
+                "username": user_info["username"],
+                "profile_photo": user_info["profile_photo"] if user_info["profile_photo"] else "default.jpg",
+                "comment": message
+            }
+        }), 200
+
+    except Exception as e:
+        print(f"Error posting comment: {e}")
+        return jsonify({"code": 500, "message": "Internal Server Error"}), 500
+
 
 
 if __name__ == "__main__":
