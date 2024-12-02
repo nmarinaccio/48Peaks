@@ -303,6 +303,12 @@ def profile_page():
     """, (user_id,))
     recent_summits = recent_summits_query.fetchall()
 
+    # Fetch follower count
+    follower_count_query = db.execute("SELECT COUNT(*) AS count FROM followers WHERE followee_id = ?", (user_id,))
+
+    # Fetch the count from the first (and only) row
+    follower_count = follower_count_query.fetchone()[0]
+
     # Truncate notes or blurb to two lines in the backend and format dates
     def truncate_text(text, max_length=350):
         return text if len(text) <= max_length else text[:max_length].rsplit(' ', 1)[0] + '...'
@@ -329,7 +335,8 @@ def profile_page():
         elevation_hiked=elevation_hiked,
         last_hike=last_hike,
         summits_progress=summits_progress,
-        recent_summits=recent_summits
+        recent_summits=recent_summits,
+        followers=follower_count
     )
 
 
@@ -711,6 +718,7 @@ def post_search():
     comments = db.execute(
         """
         SELECT 
+            u.id AS id,
             u.username, 
             u.profile_photo, 
             s.timestamp, 
@@ -747,6 +755,7 @@ def post_search():
     # Format the comments
     formatted_comments = [
         {
+            "user_id": comment["id"],
             "username": comment["username"],
             "profile_photo": comment["profile_photo"] if comment["profile_photo"] else "default.jpg",
             "timestamp": comment["timestamp"],

@@ -591,6 +591,16 @@ body {
     color: #4e4e4e;
 }
 
+.profile-follower-count {
+    position: absolute;
+    left: 13.2%;
+    bottom: 10%;
+    font-size: 18px; /* Smaller font size */
+    font-weight: bold;
+    color: #4e4e4e;
+    margin-top: 5px; /* Optional: adds space between the name and follower count */
+}
+
 /* Profile Body */
 .profile-body {
     flex-grow: 1;
@@ -1265,6 +1275,13 @@ select:hover {
     overflow-x: hidden; /* Prevent horizontal scrolling */
 }
 
+/* Date Section */
+.post-overlay-date-section {
+    text-align: left;
+    margin: 10px 0;
+    font-size: 14px;
+    color: #777;
+}
 
 /* Right Section */
 .post-overlay-right {
@@ -1291,12 +1308,6 @@ select:hover {
     border-radius: 50%;
     margin-right: 10px;
     border: 2px solid #4E4E4E;
-}
-
-.post-overlay-username {
-    font-size: 16px;
-    font-weight: bold;
-    color: #333;
 }
 
 /* Post Image */
@@ -1350,22 +1361,45 @@ select:hover {
 }
 
 /* Right Comments Section */
+/* Comments Section */
 .post-overlay-comments-section {
     flex-grow: 1;
     overflow-y: auto;
-    overflow-x: hidden; /* Prevent horizontal scrolling */
+    overflow-x: hidden;
     padding: 15px;
-    padding-top: 5%;
-    padding-bottom: 30px;
-    margin-bottom: 7%;
-    word-wrap: break-word; /* Break long words to prevent overflow */
-    word-break: break-word; /* Break long words if necessary */
+    position: relative;
+    word-wrap: break-word;
+    background-color: #f1f1f1;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+/* No Comments Message */
+.post-overlay-no-comments {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
+    color: #666;
+    font-style: italic;
+}
+
+/* Individual Comment */
 .post-overlay-comment {
     display: flex;
     align-items: flex-start;
     margin-bottom: 15px;
+    background-color: #eaeaea;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.post-overlay-comment-timestamp {
+    font-size: 12px;
+    color: #999;
+    margin-left: auto;
 }
 
 .post-overlay-comment-pfp {
@@ -1377,25 +1411,30 @@ select:hover {
     border: 2px solid #4E4E4E;
 }
 
+/* Comment Content */
 .post-overlay-comment-content {
     flex-grow: 1;
-    overflow: hidden; /* Prevent horizontal overflow */
-    word-wrap: break-word; /* Break long words into the next line */
-    word-break: break-word;
+    overflow: hidden;
+    word-wrap: break-word;
 }
 
 .post-overlay-comment-content p {
     margin: 5px 0 0;
     color: #555;
-    line-height: 1.5; /* Space between lines for readability */
-    white-space: normal; /* Ensure text wraps properly */
-    overflow-wrap: break-word; /* Break text gracefully */
+    line-height: 1.5;
+    white-space: normal;
+    overflow-wrap: break-word;
 }
 
 .post-overlay-comment-username {
     font-weight: bold;
     font-size: 14px;
     color: #333;
+    cursor: pointer;
+}
+
+.post-overlay-comment-username:hover {
+    text-decoration: underline;
 }
 
 /* Comment Input Section */
@@ -1449,4 +1488,17 @@ select:hover {
     border: none;
     font-size: 20px;
     cursor: pointer;
+}
+
+/* Adjust Username Link */
+.post-overlay-username {
+    font-size: 16px;
+    font-weight: bold;
+    color: #4E4E4E;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.post-overlay-username:hover {
+    text-decoration: underline;
 }
