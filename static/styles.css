@@ -570,7 +570,7 @@ body {
 
 .profile-title {
     position: absolute;
-    bottom: 10%;
+    bottom: 12%;
     left: 5%;
     display: flex;
     align-items: center;
@@ -594,12 +594,40 @@ body {
 .profile-follower-count {
     position: absolute;
     left: 13.2%;
-    bottom: 10%;
+    bottom: 11%;
     font-size: 18px; /* Smaller font size */
     font-weight: bold;
     color: #4e4e4e;
     margin-top: 5px; /* Optional: adds space between the name and follower count */
 }
+
+#follow-button {
+    position: absolute;
+    padding: 7px 15px;
+    border-radius: 10%;
+    border-width: 1px;
+    left: 22%;
+    bottom: 9%;
+    font-size: 14px;
+    font-weight: bold;
+    margin-top: 5px; /* Optional: adds space between the name and follower count */
+    border: solid;
+}
+
+.user-follow-button.unfollowed,
+ .user-follow-button.followed:hover{
+    background-color: #4E4E4E;
+    border-color: #F0F0F0;
+    color: #F0F0F0;
+}
+
+.user-follow-button.followed,
+.user-follow-button.unfollowed:hover {
+    background-color: #F0F0F0;
+    border-color: #4E4E4E;
+    color: #4E4E4E;
+}
+
 
 /* Profile Body */
 .profile-body {
@@ -1459,7 +1487,7 @@ select:hover {
     font-size: 14px;
     resize: none;
     outline: none;
-    height: 45%;
+    height: 100%;
     width: 77%;
 }
 

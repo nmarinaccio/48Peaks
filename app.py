@@ -600,6 +600,102 @@ def post():
     return render_template('post.html', mountains=mountains)
 
 
+@app.route('/user/<int:user_id>', methods=["GET"])
+@login_required
+def user_page(user_id):
+    db = get_db()
+    viewer_id = session.get("user_id")
+    
+    # Fetch user details
+    user = db.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
+    if not user:
+        flash("User not found.", "error")
+        return redirect(url_for("home"))
+
+    # Fetch progress stats
+    peaks_summitted = db.execute("SELECT COUNT(DISTINCT mountain_id) FROM summits WHERE user_id = ? AND mountain_id != 0", (user_id,)).fetchone()[0] or 0
+    days_hiked = db.execute("SELECT COUNT(DISTINCT date_hiked) FROM summits WHERE user_id = ?", (user_id,)).fetchone()[0] or 0
+    elevation_hiked = db.execute("""
+        SELECT SUM(m.elevation) 
+        FROM mountains m 
+        JOIN summits s ON m.id = s.mountain_id 
+        WHERE s.user_id = ?
+    """, (user_id,)).fetchone()[0] or 0
+    last_hike = db.execute("""
+        SELECT MAX(date_hiked) 
+        FROM summits 
+        WHERE user_id = ?
+    """, (user_id,)).fetchone()[0]
+
+    # Format last_hike date if it exists
+    if last_hike:
+        last_hike = datetime.strptime(last_hike, "%Y-%m-%d").strftime("%m/%d/%Y")
+    else:
+        last_hike = "No Hikes Logged"
+
+    # Fetch recent summits
+    recent_summits_query = db.execute("""
+        SELECT 
+            s.id AS id,
+            s.date_hiked, 
+            COALESCE(s.notes, m.mountain_blurb) AS notes, 
+            m.name AS mountain_name, 
+            m.mountain_photo 
+        FROM summits s
+        JOIN mountains m ON s.mountain_id = m.id
+        WHERE s.user_id = ?
+        AND s.mountain_id != 0
+        ORDER BY s.date_hiked DESC
+        LIMIT 5
+    """, (user_id,))
+    recent_summits = recent_summits_query.fetchall()
+
+    # Fetch follower count
+    follower_count_query = db.execute("SELECT COUNT(*) AS count FROM followers WHERE followee_id = ?", (user_id,))
+    follower_count = follower_count_query.fetchone()[0]
+
+    following_query = db.execute(
+        "SELECT id FROM followers WHERE followee_id = ? AND follower_id = ?", 
+        (user_id, viewer_id)
+    ).fetchone()
+
+    if following_query:
+        following = True  # If a record is found
+    else:
+        following = False  # If no record is found
+
+    # Truncate notes or blurb and format dates
+    def truncate_text(text, max_length=350):
+        return text if len(text) <= max_length else text[:max_length].rsplit(' ', 1)[0] + '...'
+
+    recent_summits = [
+        {
+            "post_id": summit["id"],
+            "date_hiked": datetime.strptime(summit["date_hiked"], "%Y-%m-%d").strftime("%m/%d/%Y"),
+            "notes": truncate_text(summit["notes"]),
+            "mountain_name": summit["mountain_name"],
+            "mountain_photo": summit["mountain_photo"],
+        }
+        for summit in recent_summits
+    ]
+
+    # Calculate progress percentage
+    summits_progress = round((peaks_summitted / 48) * 100, 2) if peaks_summitted else 0
+
+    return render_template(
+        "user_page.html", 
+        user=user,
+        peaks_summitted=peaks_summitted,
+        days_hiked=days_hiked,
+        elevation_hiked=elevation_hiked,
+        last_hike=last_hike,
+        summits_progress=summits_progress,
+        recent_summits=recent_summits,
+        followers=follower_count,
+        following=following
+    )
+
+
 
 # Web service APIs
 
@@ -875,8 +971,40 @@ def post_comment():
         print(f"Error posting comment: {e}")
         return jsonify({"code": 500, "message": "Internal Server Error"}), 500
 
+@app.route('/follow-toggle', methods=['POST'])
+@login_required
+def follow_toggle():
+    db = get_db()
+    user_id = session["user_id"]
 
+    try:
+        # Ensure request is JSON
+        if not request.is_json:
+            return jsonify({"code": 400, "message": "Invalid request format. JSON expected."}), 400
+
+        followee_id = request.json.get("followee_id")
+        
+        if not followee_id:
+            return jsonify({"code": 400, "message": "Post ID and message are required."}), 400
+        
+        existing_follow = db.execute("SELECT id FROM followers WHERE follower_id = ? AND followee_id = ?", (user_id, followee_id)).fetchone()
+
+        if existing_follow:
+            db.execute("DELETE FROM followers WHERE id = ?", (str(existing_follow['id']),))
+            db.commit()
+            following = False
+        else:
+            db.execute("INSERT INTO followers (follower_id, followee_id) VALUES (?,?)", (user_id, followee_id))
+            db.commit()
+            following = True
+
+        follow_count = db.execute("SELECT COUNT(*) AS count FROM followers WHERE followee_id = ?", (followee_id)).fetchone()["count"]
+
+        return jsonify({"code": 200, "follow": following, "follow_count": follow_count}), 200
+
+    except Exception as e:
+        print(f"Error following: {e}")
+        return jsonify({"code": 500, "message": "Internal Server Error"}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
-

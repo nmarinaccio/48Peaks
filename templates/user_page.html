@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Your Profile
+    {{ user.first_name }}'s Profile
 {% endblock %}
 
 {% block content %}
@@ -15,23 +15,24 @@
             <div class="profile-name">{{ user.first_name }} {{ user.last_name }}</div>
         </div>
         <div class="profile-follower-count">{{ followers }} Followers</div>
+        {% if following: %}
+            <div id="follow-button" class="user-follow-button followed" data-followee-id="{{ user.id }}">Following</div>
+        {% else %}
+            <div id="follow-button" class="user-follow-button unfollowed" data-followee-id="{{ user.id }}">Follow</div>
+        {% endif %}
     </div>
-
 
     <!-- Main Content -->
     <div class="profile-body">
-        <!-- Your Progress Section -->
+        <!-- Progress Section -->
         <div class="profile-progress">
-            <!-- Progress Bar -->
-            <h2>Your Progress</h2>
+            <h2>Progress</h2>
             <div class="progress-bar-container">
                 <div class="progress-bar">
                     <div class="progress-bar-fill" style="width: {{ summits_progress }}%;"></div>
                 </div>
                 <p class="progress-percentage">{{ summits_progress }}% Summitted</p>
             </div>
-            
-            <!-- Progress Details -->
             <div class="progress-details">
                 <div class="progress-stat">
                     <p class="stat-title">Peaks Summitted</p>
@@ -54,13 +55,13 @@
 
         <!-- Bio Section -->
         <div class="profile-bio">
-            <h2>Your Bio</h2>
+            <h2>About {{ user.first_name }}</h2>
             <p>{{ user.bio }}</p>
         </div>
 
         <!-- Recent Hikes Section -->
         <div class="profile-recent-summits">
-            <h2>Recent Summits</h2>
+            <h2>{{ user.first_name }}'s Recent Summits</h2>
             {% if recent_summits %}
                 {% for summit in recent_summits %}
                     <div class="recent-hike" onclick="openPostOverlay({{ summit.post_id }}, '{{ summit.mountain_photo }}')">
@@ -75,9 +76,65 @@
             {% else %}
                 <p>No hikes logged.</p>
             {% endif %}
-        </div>        
+        </div>
     </div>
 </div>
+
+<script>
+    const followButton = document.querySelector("#follow-button");
+
+    followButton.addEventListener("mouseover", function() {
+        if (this.classList.contains("followed")) {
+            this.innerHTML = "Unfollow";
+        }
+    });
+
+    followButton.addEventListener("mouseout", function() {
+        if (this.classList.contains("followed")) {
+            this.innerHTML = "Following";
+        }
+    });
+
+    followButton.addEventListener("click", async function () {
+        const followeeId = followButton.dataset.followeeId; // Assume followee ID is stored as a data attribute
+
+        try {
+            // Send POST request to toggle follow status
+            const response = await fetch("/follow-toggle", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ followee_id: followeeId }),
+            });
+
+            const result = await response.json();
+
+            if (result.code === 200) {
+                // Update button text and style based on follow status
+                if (result.follow) {
+                    followButton.innerHTML = "Following";
+                    followButton.classList.remove("unfollowed");
+                    followButton.classList.add("followed");
+                } else {
+                    followButton.textContent = "Follow";
+                    followButton.classList.remove("followed");
+                    followButton.classList.add("unfollowed");
+                }
+
+                // Optionally update follow count
+                const followCountElement = document.querySelector(".profile-follower-count");
+                if (followCountElement) {
+                    followCountElement.innerHTML = `${result.follow_count} Followers`;
+                }
+            } else {
+                console.error("Error toggling follow:", result.message);
+            }
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    });
+</script>
 
 {% endblock %}
 {% include 'post_overlay.html' %}
