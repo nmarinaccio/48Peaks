@@ -1,0 +1,40 @@
+<script src="{{ url_for('static', filename='post_overlay.js') }}" defer></script>
+<!-- templates/overlay.html -->
+<div id="summit-overlay" class="post-overlay hidden">
+    <div class="post-overlay-content">
+        <!-- Left Section -->
+        <div class="post-overlay-left">
+            <div class="post-overlay-header">
+                <img src="/static/images/user_photos/profile_photos/default.jpg" alt="Poster Profile Photo" class="post-overlay-pfp">
+                <a href="/user/22" class="post-overlay-username"></a>
+            </div>
+            <div class="post-overlay-image-container">
+                <img src="/static/images/mountain_images/jefferson.jpg" alt="Post Image" class="post-overlay-post-image">
+            </div>
+            <div class="post-overlay-footer">
+                <div class="post-overlay-likes-section">
+                    <img src="/static/images/site_resources/unliked_heart.png" alt="Like" class="post-overlay-like-icon" data-post-id="">
+                    <span class="post-overlay-like-count"></span>
+                </div>
+                <div class="post-overlay-date-section">
+                    <span class="post-overlay-date"></span>
+                </div>
+                <div class="post-overlay-caption-section">
+                    <p></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Section -->
+        <div class="post-overlay-right">
+            <div class="post-overlay-comments-section"></div>
+            <div class="post-overlay-comment-input-section">
+                <textarea class="post-overlay-comment-input" placeholder="Add a comment..."></textarea>
+                <button class="post-overlay-comment-post-button" data-post-id="">Post</button>
+            </div>
+        </div>
+
+        <!-- Close Button -->
+        <button class="post-overlay-close">X</button>
+    </div>
+</div>
