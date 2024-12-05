@@ -1,8 +1,43 @@
-{% extends 'layout.html' %}
+{% extends "layout.html" %}
 
-{% block title %}Home{% endblock %}
+{% block title %}
+    48 Peaks
+{% endblock %}
 
 {% block content %}
-<h1>Welcome to 48 Peaks Tracker!</h1>
-<p>Track and log your hiking progress across the White Mountains.</p>
+<div class="home-container">
+    <!-- Left Sidebar -->
+    <div class="home-sidebar">
+        <div class="search-bar">
+            <input type="text" placeholder="Search..." class="search-input">
+        </div>
+        <div class="sidebar-user">
+            <div class="user-icon"></div>
+            <span class="username">username</span>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="post">
+            <div class="post-header">
+                <div class="user-icon"></div>
+                <span class="username">username</span>
+            </div>
+            <div class="post-image">
+                <img src="" alt="Post Image">
+            </div>
+            <div class="post-caption">
+                Caption
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Sidebar -->
+    <div class="home-sidebar">
+        <h3>Your Next Peak?</h3>
+        <div class="peak-card"></div>
+        <div class="peak-card"></div>
+    </div>
+</div>
 {% endblock %}

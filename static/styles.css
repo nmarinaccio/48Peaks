@@ -1502,3 +1502,106 @@ select:hover {
 .post-overlay-username:hover {
     text-decoration: underline;
 }
+
+
+/* Homepage CSS */
+
+.home-container {
+    display: flex;
+    margin: 20px;
+    gap: 20px;
+    align-items: stretch; /* Ensures all children have the same height */
+    justify-content: center;
+    height: 100vh; /* Takes up the full viewport height */
+    overflow: hidden; /* Prevents the page from scrolling */
+}
+
+/* Left Sidebar */
+.home-sidebar {
+    width: 20%;
+    background-color: white;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column; /* Ensures content stacks vertically */
+    justify-content: space-between; /* Distributes space within the sidebar */
+    height: 80%; /* Matches the height of the main content */
+}
+
+/* Main Content */
+.main-content {
+    flex: 1; /* Main content takes up remaining horizontal space */
+    background-color: white;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    overflow-y: auto; /* Enables vertical scrolling within the main content */
+    overflow-x: hidden; /* Prevents horizontal scrolling */
+    display: flex;
+    flex-direction: column; /* Ensures content stacks vertically */
+    height: 100%; /* Ensures it stretches to match the height of the container */
+}
+
+/* Right Sidebar */
+.right-sidebar {
+    width: 20%;
+    background-color: white;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column; /* Ensures content stacks vertically */
+    justify-content: space-between; /* Distributes space within the sidebar */
+    height: auto; /* Matches the height of the main content */
+}
+
+/* Post Section */
+.post {
+    margin-bottom: 20px;
+    flex-shrink: 0; /* Prevents posts from shrinking when content overflows */
+}
+
+.post-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.post-image img {
+    width: 100%;
+    border-radius: 8px;
+}
+
+.post-caption {
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+/* Sidebar User Section */
+.sidebar-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-icon {
+    width: 40px;
+    height: 40px;
+    background-color: lightblue;
+    border-radius: 50%;
+}
+
+.username {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* Peak Card */
+.peak-card {
+    background-color: lightblue;
+    height: 80px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
