@@ -1530,3 +1530,174 @@ select:hover {
 .post-overlay-username:hover {
     text-decoration: underline;
 }
+
+
+/* Homepage CSS */
+
+.home-container {
+    display: flex;
+    margin: 20px;
+    gap: 20px;
+    align-items: stretch; /* Ensures all children have the same height */
+    justify-content: center;
+    height: 100vh; /* Takes up the full viewport height */
+    overflow: hidden; /* Prevents the page from scrolling */
+}
+
+.home-sidebar {
+    width: 20%;
+    background-color: white;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column; /* Ensures content stacks vertically */
+    height: 80%; /* Matches the height of the main content */
+}
+
+/* Main Content */
+.main-content {
+    flex: 1; /* Main content takes up remaining horizontal space */
+    background-color: white;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    overflow-y: auto; /* Enables vertical scrolling within the main content */
+    overflow-x: hidden; /* Prevents horizontal scrolling */
+    display: flex;
+    flex-direction: column; /* Ensures content stacks vertically */
+    height: 80%;
+    align-items: center;
+}
+
+/* Post Section */
+
+.home-post-container {
+    background-color: #F5F5F5;
+    max-height: 80%;
+    height: auto; /* Allow content to determine height */
+    width: 90%;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column; /* Stack header, divider, and content vertically */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden; /* Prevent content overflow */
+    margin: 20px 0px; /* Add spacing between posts */
+}
+
+.home-post-header {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #ccc; /* Adds a subtle dividing line */
+}
+
+.post-divider {
+    border: none;
+    border-top: 1px solid #ccc;
+    margin: 0; /* Removes default margins for hr */
+}
+
+/* Content Section */
+.home-post-content {
+    display: flex;
+    padding: 15px;
+    font-size: 14px;
+    color: #555;
+    word-wrap: break-word;
+    background-color: #ffffff; /* Subtle contrast for content */
+    border-radius: 0 0 15px 15px; /* Round bottom corners */
+    overflow: hidden;
+}
+
+.home-post-content img {
+    max-height: 100%;
+    width: auto;
+    object-fit: contain;
+}
+
+.home-sidebar-title {
+    padding: 15px 0px;
+    color: #4E4E4E;
+    font-size: 22px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.home-search-bar {
+    display: flex;
+    padding: 10px 0;
+    width: 100%;
+    border-bottom: solid #898989 1px;
+    justify-content: center;
+}
+
+.home-search-bar input {
+    width: 90%;
+}
+
+.sidebar-user-section {
+    padding: 10px 0px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    overflow-y: auto;
+
+}
+
+.sidebar-user {
+    width: 85%;
+    background-color: #F5F5F5;
+    padding: 10px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+}
+
+.user-icon {
+    width: 40px;
+    height: 40px;
+    background-color: lightblue;
+    border-radius: 50%;
+}
+
+.username {
+    font-size: 14px;
+    font-weight: bold;
+    color: #4e4e4e;
+}
+
+/* Peak Card */
+
+.sidebar-peak-section {
+    padding: 10px 0px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    overflow-y: auto;
+    height: 100%;
+    justify-content: center;
+
+}
+
+.sidebar-peak {
+    width: 85%;
+    background-color: #F5F5F5;
+    padding: 10px;
+    height: 25%;
+    border-radius: 15px;
+    display: flex;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);   
+}
+
+.sidebar-peak-title {
+    position: relative;
+    left: 3%;
+    top: 67%;
+    color: #4E4E4E;
+    font-weight: bold;
+    font-size: 20px;
+}
