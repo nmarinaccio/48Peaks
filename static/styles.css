@@ -1686,10 +1686,11 @@ select:hover {
 
 .home-search-bar {
     display: flex;
+    flex-direction: column;
     padding: 10px 0;
     width: 100%;
     border-bottom: solid #898989 1px;
-    justify-content: center;
+    align-items: center;
 }
 
 .home-search-bar input {
@@ -1778,4 +1779,33 @@ select:hover {
     background-color: rgba(255, 255, 255, 0.9); /* Subtle white background for text */
     padding: 5px;
     border-radius: 5px;
+}
+
+.autocomplete-dropdown {
+    width: 100%;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+#autocompleteDropdown {
+    position: absolute;
+    left: 3.2%;
+    top: 23.9%;
+    max-width: 250px;
+}
+
+#peakAutocompleteDropdown {
+    position: absolute;
+    right: 3.2%;
+    top: 23.9%;
+    max-width: 250px;
+}
+
+.user-autocomplete-item {
+    color: #4e4e4e;
+}
+
+.user-autocomplete-item:hover {
+    position: relative;
+    background-color: #f0f0f0;
 }

@@ -10,7 +10,9 @@
     <div class="home-sidebar">
         <div class="home-sidebar-title">Following</div>
         <div class="home-search-bar">
-            <input type="text" placeholder="Follow a new user..." class="search-input">
+            <input type="text" id="user-search-input" placeholder="Follow a new user..." class="search-input">
+            <div id="autocompleteDropdown" class="autocomplete-dropdown" style="background: white; border: 1px solid #ccc; display: none; z-index: 1000; max-height: 200px; overflow-y: auto;">
+            </div>
         </div>
         <div class="sidebar-user-section">
             {% if following %}
@@ -55,7 +57,9 @@
     <div class="home-sidebar">
         <div class="home-sidebar-title">Your Next Peak</div>
         <div class="home-search-bar">
-            <input type="text" placeholder="Find a peak..." class="search-input">
+            <input type="text" id="peak-search-input" placeholder="Follow a new user..." class="search-input">
+            <div id="peakAutocompleteDropdown" class="autocomplete-dropdown" style="background: white; border: 1px solid #ccc; display: none; z-index: 1000; max-height: 200px; overflow-y: auto;">
+            </div>
         </div>
         <div class="sidebar-peak-section">
             {% for peak in recommended_peaks %}
@@ -80,7 +84,101 @@
             element.style.fontSize = fontSize + "px";
         }
     });
+
+    const searchInput = document.getElementById("user-search-input");
+    const dropdown = document.getElementById("autocompleteDropdown");
+    const peakSearchInput = document.getElementById("peak-search-input");
+    const peakDropdown = document.getElementById("peakAutocompleteDropdown");
+
+    searchInput.addEventListener("input", async () => {
+        const query = searchInput.value.trim();
+        if (query === "") {
+            dropdown.style.display = "none";
+            return;
+        }
+
+        try {
+            const response = await fetch(`/friend-search?query=${encodeURIComponent(query)}`);
+            const results = await response.json();
+
+            dropdown.innerHTML = ""; // Clear previous results
+            if (results.length === 0) {
+                dropdown.style.display = "none";
+                return;
+            }
+
+            results.forEach(friend => {
+                const item = document.createElement("div");
+                item.textContent = friend.name;
+                item.className = "user-autocomplete-item";
+                item.style.padding = "8px";
+                item.style.cursor = "pointer";
+                item.onclick = () => {
+                    window.location.href = `/user/${friend.id}`;
+                };
+
+                dropdown.appendChild(item);
+            });
+
+            dropdown.style.display = "block"; // Show dropdown
+        } catch (error) {
+            console.error("Error fetching search results:", error);
+        }
+    });
+
+    // Hide the dropdown when clicking outside
+    document.addEventListener("click", (event) => {
+        if (!searchInput.contains(event.target) && !dropdown.contains(event.target)) {
+            dropdown.style.display = "none";
+        }
+        if (!peakSearchInput.contains(event.target) && !peakDropdown.contains(event.target)) {
+            peakDropdown.style.display = "none";
+        }
+    });
+
+    peakSearchInput.addEventListener("input", async () => {
+        const query = peakSearchInput.value.trim();
+
+        if (query === "") {
+            peakDropdown.style.display = "none"; // Hide the dropdown if the input is empty
+            return;
+        }
+
+        try {
+            const response = await fetch(`/peak-search?query=${encodeURIComponent(query)}`);
+            const results = await response.json();
+
+            // Clear previous results
+            peakDropdown.innerHTML = "";
+
+            if (results.length === 0) {
+                peakDropdown.style.display = "none"; // Hide the dropdown if no results
+                return;
+            }
+
+            results.forEach(peak => {
+                const item = document.createElement("div");
+                item.textContent = peak.name;
+                item.className = "user-autocomplete-item";
+                item.style.padding = "8px";
+                item.style.cursor = "pointer";
+
+                item.addEventListener("click", () => {
+                    window.location.href = `/mountain/${peak.id}`;
+                });
+
+                peakDropdown.appendChild(item);
+            });
+
+            peakDropdown.style.display = "block"; // Show the dropdown
+        } catch (error) {
+            console.error("Error fetching peak search results:", error);
+        }
+    });
+
 </script>
+
+
 
 {% endblock %}
 {% include 'post_overlay.html' %}

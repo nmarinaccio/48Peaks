@@ -213,8 +213,6 @@ def home():
         background=bg
     )
 
-
-
 @app.route('/login', methods=["GET", "POST"])
 def login():
     bg = get_bg()
@@ -852,7 +850,6 @@ def user_page(user_id):
     )
 
 
-
 # Web service APIs
 
 @app.route('/get-peak-details/<int:summit_id>', methods=['GET'])
@@ -933,6 +930,29 @@ def friend_search():
     friend_list = [{"id": friend["id"], "name": friend["name"]} for friend in friends]
 
     return jsonify(friend_list)
+
+@app.route('/peak-search')
+@login_required
+def peak_search():
+    db = get_db()
+    query = request.args.get('query', '').strip()
+
+    if not query:
+        return jsonify([])  # Return empty array if no query is provided
+
+    # Search for peaks in the mountains table whose names match the query (case-insensitive)
+    peaks = db.execute("""
+        SELECT id, name
+        FROM mountains
+        WHERE name LIKE ?
+        ORDER BY name ASC
+        LIMIT 5
+    """, (f"%{query}%",)).fetchall()
+
+    # Convert query results to JSON
+    peak_list = [{"id": peak["id"], "name": peak["name"]} for peak in peaks]
+
+    return jsonify(peak_list)
 
 
 @app.route('/post-search')
