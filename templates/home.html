@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="home-container">
+<div class="home-container" style="background-image: url('/static/images/background_images/{{background}}');">
     <!-- Left Sidebar -->
     <div class="home-sidebar">
         <div class="home-sidebar-title">Following</div>
@@ -13,10 +13,17 @@
             <input type="text" placeholder="Follow a new user..." class="search-input">
         </div>
         <div class="sidebar-user-section">
-            <div class="sidebar-user">
-                <div class="user-icon"></div>
-                <span class="username">username</span>
-            </div>
+            {% if following %}
+                {% for user in following %}
+                <div class="sidebar-user" onclick="window.location.href = 'user/{{user.user_id}}';">
+                    <div class="user-icon">
+                        <img src="/static/images/user_photos/profile_photos/{{user.pfp}}">
+                    </div>
+                    <span class="username">{{user.username}}</span>
+                </div>
+                {% endfor %}
+            {% else %}
+            {% endif %}
         </div>
     </div>
 
@@ -24,26 +31,23 @@
     <div class="main-content">
         <div class="home-sidebar-title">Recent Posts</div>
         <div class="home-posts">
-            <div class="home-post-container">
-                <div class="home-post-header">
-                    <div class="user-icon"></div>
-                    <span class="username">username</span>
-                </div>
-                <hr class="post-divider">
-                <div class="home-post-content" onclick="openPostOverlay(1)">
-                    <img src="/static/images/user_photos/summit_photos/1/1.jpg">
-                </div>
-            </div>        
-            <div class="home-post-container">
-                <div class="home-post-header">
-                    <div class="user-icon"></div>
-                    <span class="username">username</span>
-                </div>
-                <hr class="post-divider">
-                <div class="home-post-content" onclick="openPostOverlay(1)">
-                    <img src="/static/images/user_photos/summit_photos/1/1.jpg">
-                </div>
-            </div>       
+            {% if posts %}
+                {% for post in posts %}
+                    <div class="home-post-container">
+                        <div class="home-post-header" onclick="window.location.href = 'user/{{post.user_id}}';">
+                            <div class="user-icon">
+                                <img src="/static/images/user_photos/profile_photos/{{post.pfp}}">
+                            </div>
+                            <span class="username">{{post.username}}</span>
+                        </div>
+                        <hr class="post-divider">
+                        <div class="home-post-content" onclick="openPostOverlay({{post.id}})">
+                            <img src="{{post.picture}}">
+                        </div>
+                    </div>           
+                {% endfor %}
+            {% else %}
+            {% endif %}
         </div> 
     </div>    
 
@@ -54,15 +58,29 @@
             <input type="text" placeholder="Find a peak..." class="search-input">
         </div>
         <div class="sidebar-peak-section">
-            <div class="sidebar-peak">
-                <div class="sidebar-peak-title">Mt. Washington</div>
-            </div>
-            <div class="sidebar-peak">
-            </div>
-            <div class="sidebar-peak">
-            </div>
+            {% for peak in recommended_peaks %}
+                <div class="sidebar-peak" onclick="window.location.href = 'mountain/{{peak.id}}';"
+                style="background-image: linear-gradient(to bottom, rgba(0,0,0,0) 50%, #3E3E3E 100%), url('/static/images/mountain_images/{{peak.photo}}');">
+                    <div class="sidebar-peak-title">
+                        <span>{{peak.name}}</span>
+                    </div>
+                </div>
+            {% endfor %}
         </div>
     </div>
 </div>
+
+<script>
+    document.querySelectorAll('.sidebar-peak-title span').forEach(element => {
+        let fontSize = 20;
+        console.log(element.parentElement.clientWidth);
+        element.style.fontSize = fontSize + "px";
+        while (element.parentElement.clientWidth > 170) {
+            fontSize--;
+            element.style.fontSize = fontSize + "px";
+        }
+    });
+</script>
+
 {% endblock %}
 {% include 'post_overlay.html' %}

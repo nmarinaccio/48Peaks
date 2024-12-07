@@ -17,6 +17,7 @@ async function openPostOverlay(post_id, mountain_photo) {
 
         if (post.code !== 200) {
             console.error("Post not found or error in response");
+            console.log(post);
             return;
         }
 

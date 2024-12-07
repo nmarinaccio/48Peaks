@@ -1536,12 +1536,14 @@ select:hover {
 
 .home-container {
     display: flex;
-    margin: 20px;
+    padding: 20px;
     gap: 20px;
     align-items: stretch; /* Ensures all children have the same height */
     justify-content: center;
     height: 100vh; /* Takes up the full viewport height */
     overflow: hidden; /* Prevents the page from scrolling */
+    background-size: cover;
+    background-position: center;
 }
 
 .home-sidebar {
@@ -1573,24 +1575,23 @@ select:hover {
 /* Post Section */
 
 .home-posts {
-    height: 100%;
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     margin: 0px;
+    gap: 20px; /* Add spacing between posts */
 }
 
 .home-post-container {
     background-color: #F5F5F5;
-    height: 80%;
     width: 90%;
     border-radius: 15px;
     display: flex;
     flex-direction: column; /* Stack header, divider, and content vertically */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     overflow: hidden; /* Prevent content overflow */
-    margin: 20px 0px; /* Add spacing between posts */
+    margin: 0; /* Remove additional margin */
 }
 
 .home-post-header {
@@ -1606,9 +1607,9 @@ select:hover {
     margin: 0; /* Removes default margins for hr */
 }
 
-/* Content Section */
 .home-post-content {
     display: flex;
+    flex-direction: column; /* Allow content and image to stack */
     padding: 15px;
     font-size: 14px;
     color: #555;
@@ -1619,10 +1620,12 @@ select:hover {
 }
 
 .home-post-content img {
-    max-height: 100%;
-    width: auto;
-    object-fit: contain;
+    width: 100%; /* Ensure the image fills the width */
+    height: auto; /* Maintain aspect ratio */
+    object-fit: cover; /* Crop the image to fit */
+    max-height: 450px; /* Limit the height to prevent oversized images */
 }
+
 
 .home-sidebar-title {
     padding: 15px 0px;
@@ -1667,14 +1670,24 @@ select:hover {
 .user-icon {
     width: 40px;
     height: 40px;
-    background-color: lightblue;
     border-radius: 50%;
+    overflow: hidden;
+    display: flex; /* Use flexbox for centering */
+    align-items: center; /* Center vertically */
+    justify-content: center; /* Center horizontally */
+}
+
+.user-icon img {
+    width: 100%; /* Adjust width to maintain aspect ratio */
+    height: 100%; /* Ensure the height fills the container */
+    object-fit: cover; /* Fill the div while maintaining aspect ratio */
 }
 
 .username {
     font-size: 14px;
     font-weight: bold;
     color: #4e4e4e;
+    margin-left: 7px;
 }
 
 /* Peak Card */
@@ -1693,19 +1706,27 @@ select:hover {
 
 .sidebar-peak {
     width: 85%;
-    background-color: #F5F5F5;
     padding: 10px;
     height: 25%;
     border-radius: 15px;
     display: flex;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);   
+    background-size: cover;
+    background-position: center;
 }
 
 .sidebar-peak-title {
     position: relative;
-    left: 3%;
-    top: 67%;
+    left: 0%;
+    top: 78%;
     color: #4E4E4E;
     font-weight: bold;
-    font-size: 20px;
+    max-width: 80%;
+
+}
+
+.sidebar-peak-title span {
+    background-color: rgba(255, 255, 255, 0.9); /* Subtle white background for text */
+    padding: 5px;
+    border-radius: 5px;
 }

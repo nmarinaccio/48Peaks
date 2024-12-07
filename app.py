@@ -1,6 +1,7 @@
 # Standard library imports
 import json
 import os
+import random
 import sqlite3
 from datetime import datetime
 
@@ -8,6 +9,7 @@ from datetime import datetime
 import pytz
 from flask import Flask, flash, g, jsonify, redirect, render_template, request, session, url_for
 from flask_session import Session
+from PIL import Image
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 
@@ -28,6 +30,49 @@ def get_db():
         g.db = sqlite3.connect(DATABASE)
         g.db.row_factory = sqlite3.Row  # Allows dict-like access to rows
     return g.db
+
+# Function to return a random background
+def get_bg():
+    directory = "./static/images/background_images"
+    try:
+        # List all files in the directory
+        files = os.listdir(directory)
+
+        # Filter out non-files (e.g., directories)
+        files = [f for f in files if os.path.isfile(os.path.join(directory, f))]
+
+        if not files:
+            raise ValueError("No files found in the specified directory.")
+
+        # Randomly select a file
+        random_file = random.choice(files)
+        return random_file
+    except FileNotFoundError:
+        raise FileNotFoundError("The specified directory does not exist.")
+    except Exception as e:
+        raise RuntimeError(f"An error occurred: {e}")
+
+def compress_image_to_limit(input_path, output_path=None, max_size_mb=1, initial_quality=85, step=5):
+    max_size_bytes = max_size_mb * 1024 * 1024  # Convert MB to bytes
+    if output_path is None:
+        output_path = input_path  # Overwrite the original file
+
+    try:
+        with Image.open(input_path) as img:
+            img = img.convert("RGB")  # Ensure compatibility
+            quality = initial_quality
+
+            # Save and check the size iteratively
+            while True:
+                img.save(output_path, optimize=True, quality=quality)
+                if os.path.getsize(output_path) <= max_size_bytes or quality <= step:
+                    break  # Stop if under size or quality is too low
+                quality -= step  # Reduce quality further
+
+            return output_path
+    except Exception as e:
+        print(f"Error compressing image: {e}")
+        raise
 
 # Close the database connection when the app context ends
 @app.teardown_appcontext
@@ -74,7 +119,100 @@ def inject_user():
 @app.route('/')
 @login_required
 def home():
-    return render_template("home.html")
+    db = get_db()
+    bg = get_bg()
+    user_id = session.get("user_id")
+
+    # Get following information
+    following_unformatted = db.execute("SELECT f.followee_id AS user_id, u.username, u.profile_photo FROM followers f JOIN users u ON f.followee_id = u.id WHERE f.follower_id = ? ORDER BY u.username", (user_id,)).fetchall()
+    following = []
+
+    for user in following_unformatted:
+        following.append({
+            "user_id": user['user_id'],
+            "username": user['username'],
+            "pfp": user['profile_photo']
+        })
+    
+    # Get recent post information
+    recent_posts_unformatted = db.execute("""
+        SELECT s.id, s.user_id, s.summit_picture, u.username, u.profile_photo
+        FROM summits s
+        JOIN users u
+        ON s.user_id = u.id
+        WHERE s.user_id IN (
+            SELECT followee_id FROM followers WHERE follower_id = ?
+        )
+        ORDER BY date_hiked DESC
+        LIMIT 4
+    """, (user_id,))
+    recent_posts = []
+
+    for post in recent_posts_unformatted:
+        recent_posts.append({
+            "id": post['id'],
+            "user_id": post['user_id'],
+            "username": post['username'],
+            "pfp": post['profile_photo'],
+            "picture": post['summit_picture']
+        })
+
+    # Get suggested peaks information
+
+    # First, fetch peaks the user hasn't hiked yet
+    unhiked_peaks_unformatted = db.execute(
+        """
+        SELECT id, mountain_photo, name
+        FROM mountains
+        WHERE id NOT IN (
+            SELECT mountain_id
+            FROM summits
+            WHERE user_id = ?
+        )
+        ORDER BY RANDOM()
+        LIMIT 3
+        """
+        , (user_id,)
+    ).fetchall()
+
+    # If fewer than 3 peaks are found, fetch additional peaks the user has hiked
+    if len(unhiked_peaks_unformatted) < 3:
+        # Calculate how many more peaks are needed
+        remaining_needed = 3 - len(unhiked_peaks_unformatted)
+
+        # Fetch random peaks that the user has hiked
+        hiked_peaks = db.execute(
+            """
+            SELECT id, mountain_photo, name
+            FROM mountains
+            WHERE id IN (
+                SELECT mountain_id
+                FROM summits
+                WHERE user_id = ?
+            )
+            ORDER BY RANDOM()
+            LIMIT ?
+            """
+            , (user_id, remaining_needed)
+        ).fetchall()
+
+        # Combine the two lists
+        unhiked_peaks_unformatted.extend(hiked_peaks)
+
+    # Create a list of dictionaries for the recommended peaks
+    recommended_peaks = [
+        {"id": peak["id"], "photo": peak["mountain_photo"], "name": peak["name"]}
+        for peak in unhiked_peaks_unformatted
+    ]
+
+    return render_template("home.html",
+        following=following,
+        posts=recent_posts,
+        recommended_peaks=recommended_peaks,
+        background=bg
+    )
+
+
 
 @app.route('/login', methods=["GET", "POST"])
 def login():
@@ -537,11 +675,18 @@ def post():
             file = request.files['summit-photo']
             if file and file.filename:
                 filename = secure_filename(file.filename)
-                summit_picture = f"/static/images/user_photos/summit_photos/{user_id}/{mountain_id}.jpg"
-                file_path = os.path.join('static', 'images', 'user_photos', 'summit_photos', str(user_id))
+                summit_picture = f"/static/images/user_photos/summit_photos/{user_id}-{mountain_id}.jpg"
+                file_path = os.path.join('static', 'images', 'user_photos', 'summit_photos')
                 os.makedirs(file_path, exist_ok=True)  # Ensure directory exists
-                file.save(os.path.join(file_path, f"{mountain_id}.jpg"))
-                print("Saving file to:", os.path.join(file_path, f"{mountain_id}.jpg"))
+                full_file_path = os.path.join(file_path, f"{user_id}-{mountain_id}.jpg")
+                file.save(full_file_path)
+
+                if os.path.getsize(full_file_path) > 1 * 1024 * 1024:  # File size > 1MB
+                    try:
+                        compress_image_to_limit(full_file_path, max_size_mb=1)
+                    except Exception as e:
+                        flash("Error compressing image. Please try again.", "error")
+                        return redirect(url_for('post'))
 
         # Fetch the latest post_id
         check_post_id = db.execute("SELECT post_id FROM summits ORDER BY post_id DESC LIMIT 1").fetchone()
@@ -605,6 +750,9 @@ def post():
 def user_page(user_id):
     db = get_db()
     viewer_id = session.get("user_id")
+
+    if user_id == viewer_id:
+        return redirect("/profile")
     
     # Fetch user details
     user = db.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
