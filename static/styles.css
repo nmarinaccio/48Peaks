@@ -355,6 +355,56 @@ body {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 
+.summit-information-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between; 
+    width: 80%;
+    background-color: white;
+    border-radius: 15px;
+    padding: 10px;
+    margin: 10px auto;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+
+.summit-information-subsection {
+    display: flex;
+    width: 33%;
+    flex-direction: column;
+    align-items: center;
+}
+
+.summit-information-subsection-title {
+    color: #4e4e4e;
+    font-weight: bold;
+    font-size: 20px;
+    margin-top: 5%;
+}
+
+.summit-information-subsection-elevation {
+    color: #4e4e4e;
+    font-weight: bold;
+    font-size: 30px;
+    padding: 10px;
+}
+
+.weather {
+    justify-content: center;
+    text-align: center;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.weather img {
+    height: 75px;
+    width: auto;
+}
+
+.weather p {
+    margin: 0;
+}
+
 /* Comments Section */
 .mountain-list-user-log-comments {
     margin: 0 5%;

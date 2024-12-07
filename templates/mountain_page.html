@@ -20,6 +20,41 @@
             <p><a href="{{ mountain.information_link }}" target="_blank">Learn more about {{ mountain.name }}</a></p>
         </div>
 
+        <!-- Summit Information Section -->
+        <div class="summit-information-container">
+            <div class="summit-information-subsection">
+                <div class="summit-information-subsection-title">
+                    Summit Elevation
+                </div>
+                <div class="summit-information-subsection-elevation">
+                    {{mountain.elevation}} ft
+                </div>
+            </div>
+            <div class="summit-information-subsection">
+                <div class="summit-information-subsection-title">
+                    Current Summit Weather
+                </div>
+                {% if weather %}
+                    <div class="weather">
+                        <img src="http://openweathermap.org/img/wn/{{ weather.icon }}.png" alt="Weather Icon">
+                        <p>{{ weather.temperature }}°F</p>
+                    </div>
+                {% else %}
+                <p>Weather data is not available for this mountain.</p>
+                {% endif %}
+            </div>
+            <div class="summit-information-subsection">
+                <div class="summit-information-subsection-title">
+                    Directions
+                </div>
+                <div class="summit-information-subsection-content">
+                    <img src="/static/images/site_resources/drive_icon.svg" 
+                    style="margin-top: 10px; width: 60px; height: auto;" 
+                    onclick="window.open(`https://www.google.com/maps/dir/?api=1&destination={{mountain.longitude}},{{mountain.latitude}}`, '_blank')">
+                </div>
+            </div>
+        </div>
+
         <!-- Summit Photo -->
         <div class="mountain-list-user-log-summit-photo">
             <h2>Mountain Photo</h2>

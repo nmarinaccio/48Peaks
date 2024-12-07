@@ -15,6 +15,7 @@ from werkzeug.utils import secure_filename
 
 # Local application/library-specific imports
 from helpers import login_required
+from helpers import get_weather
 
 DATABASE = "48peaks.db"
 
@@ -320,6 +321,12 @@ def mountain_page(mountain_id):
             flash("Mountain not found.", "error")
             return redirect(url_for("home"))  # Redirect to the homepage or an appropriate page
 
+        long = mountain['longitude']
+        lat = mountain['latitude']
+        api_key = '80dd128965351d9428d255aa831259c0'
+        
+        weather = get_weather(lat, long, api_key)
+
         # Fetch comments for the mountain
         comments = db.execute("""
             SELECT comments.id, comments.timestamp, comments.message, 
@@ -360,7 +367,7 @@ def mountain_page(mountain_id):
                 "summitted": summitted
             })
 
-        return render_template("mountain_page.html", mountain=mountain, comments=formatted_comments)
+        return render_template("mountain_page.html", mountain=mountain, weather=weather, comments=formatted_comments)
 
     # Handle POST request to add a comment
     comment = request.form.get("comment")
