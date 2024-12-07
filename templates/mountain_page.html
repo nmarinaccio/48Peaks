@@ -13,13 +13,6 @@
     </div>
 
     <div class="mountain-list-user-log-body">
-        <!-- Mountain Blurb -->
-        <div class="mountain-list-user-log-mountain-infromation">
-            <h2>About {{ mountain.name }}</h2>
-            <p>{{ mountain.mountain_blurb }}</p>
-            <p><a href="{{ mountain.information_link }}" target="_blank">Learn more about {{ mountain.name }}</a></p>
-        </div>
-
         <!-- Summit Information Section -->
         <div class="summit-information-container">
             <div class="summit-information-subsection">
@@ -53,6 +46,13 @@
                     onclick="window.open(`https://www.google.com/maps/dir/?api=1&destination={{mountain.longitude}},{{mountain.latitude}}`, '_blank')">
                 </div>
             </div>
+        </div>
+
+        <!-- Mountain Blurb -->
+        <div class="mountain-list-user-log-mountain-infromation">
+            <h2>About {{ mountain.name }}</h2>
+            <p>{{ mountain.mountain_blurb }}</p>
+            <p><a href="{{ mountain.information_link }}" target="_blank">Learn more about {{ mountain.name }}</a></p>
         </div>
 
         <!-- Summit Photo -->

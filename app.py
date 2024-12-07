@@ -217,9 +217,10 @@ def home():
 
 @app.route('/login', methods=["GET", "POST"])
 def login():
+    bg = get_bg()
     if request.method == "GET":
         session.clear()
-        return render_template("login.html")
+        return render_template("login.html", background=bg)
 
     # Retrieve form inputs
     username = request.form.get("username")
