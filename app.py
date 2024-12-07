@@ -1,15 +1,15 @@
 # Standard library imports
+from datetime import datetime
 import json
 import os
 import random
 import sqlite3
-from datetime import datetime
 
 # Third-party library imports
-import pytz
 from flask import Flask, flash, g, jsonify, redirect, render_template, request, session, url_for
 from flask_session import Session
 from PIL import Image
+import pytz
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 

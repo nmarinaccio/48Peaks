@@ -2,6 +2,7 @@ import requests
 from flask import redirect, render_template, session
 from functools import wraps
 
+# Login required function from CS50's Finance
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
