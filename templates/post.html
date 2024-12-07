@@ -3,7 +3,7 @@
 {% block title %}Log a Summit{% endblock %}
 
 {% block content %}
-<div class="background-container">
+<div class="background-container" style="background-image: url('/static/images/background_images/{{background}}');">
     <div class="post-container">
         <form id="summit-post-form" class="post-form" enctype="multipart/form-data" method="POST">
             <!-- Mountain Dropdown -->
@@ -128,36 +128,6 @@
             document.getElementById('image-preview').src = e.target.result;
         };
         reader.readAsDataURL(file);
-    });
-
-    document.addEventListener('DOMContentLoaded', () => {
-        // Random Background Image for the Outer Container
-        const backgroundContainer = document.querySelector('.background-container');
-        const images = [
-            '/static/images/background_images/winter_washington.jpeg'
-        ];
-        const randomImage = images[Math.floor(Math.random() * images.length)];
-        backgroundContainer.style.backgroundImage = `url('${randomImage}')`;
-
-        // Image Preview Logic
-        const photoInput = document.getElementById('summit-photo');
-        const previewContainer = document.getElementById('image-preview');
-        const previewImage = document.getElementById('preview-img');
-
-        photoInput.addEventListener('change', () => {
-            const file = photoInput.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    previewImage.src = e.target.result;
-                    previewContainer.classList.remove('hidden');
-                };
-                reader.readAsDataURL(file);
-            } else {
-                previewContainer.classList.add('hidden');
-                previewImage.src = '';
-            }
-        });
     });
 
 </script>
