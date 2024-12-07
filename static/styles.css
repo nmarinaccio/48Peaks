@@ -1572,10 +1572,18 @@ select:hover {
 
 /* Post Section */
 
+.home-posts {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0px;
+}
+
 .home-post-container {
     background-color: #F5F5F5;
-    max-height: 80%;
-    height: auto; /* Allow content to determine height */
+    height: 80%;
     width: 90%;
     border-radius: 15px;
     display: flex;

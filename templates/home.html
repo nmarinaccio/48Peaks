@@ -23,17 +23,29 @@
     <!-- Main Content -->
     <div class="main-content">
         <div class="home-sidebar-title">Recent Posts</div>
-        <div class="home-post-container">
-            <div class="home-post-header">
-                <div class="user-icon"></div>
-                <span class="username">username</span>
-            </div>
-            <hr class="post-divider">
-            <div class="home-post-content">
-                <img src="/static/images/user_photos/summit_photos/1/1.jpg">
-            </div>
-        </div>        
-    </div>
+        <div class="home-posts">
+            <div class="home-post-container">
+                <div class="home-post-header">
+                    <div class="user-icon"></div>
+                    <span class="username">username</span>
+                </div>
+                <hr class="post-divider">
+                <div class="home-post-content" onclick="openPostOverlay(1)">
+                    <img src="/static/images/user_photos/summit_photos/1/1.jpg">
+                </div>
+            </div>        
+            <div class="home-post-container">
+                <div class="home-post-header">
+                    <div class="user-icon"></div>
+                    <span class="username">username</span>
+                </div>
+                <hr class="post-divider">
+                <div class="home-post-content" onclick="openPostOverlay(1)">
+                    <img src="/static/images/user_photos/summit_photos/1/1.jpg">
+                </div>
+            </div>       
+        </div> 
+    </div>    
 
     <!-- Right Sidebar -->
     <div class="home-sidebar">
@@ -53,3 +65,4 @@
     </div>
 </div>
 {% endblock %}
+{% include 'post_overlay.html' %}
