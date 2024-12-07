@@ -8,36 +8,48 @@
 <div class="home-container">
     <!-- Left Sidebar -->
     <div class="home-sidebar">
-        <div class="search-bar">
-            <input type="text" placeholder="Search..." class="search-input">
+        <div class="home-sidebar-title">Following</div>
+        <div class="home-search-bar">
+            <input type="text" placeholder="Follow a new user..." class="search-input">
         </div>
-        <div class="sidebar-user">
-            <div class="user-icon"></div>
-            <span class="username">username</span>
+        <div class="sidebar-user-section">
+            <div class="sidebar-user">
+                <div class="user-icon"></div>
+                <span class="username">username</span>
+            </div>
         </div>
     </div>
 
     <!-- Main Content -->
     <div class="main-content">
-        <div class="post">
-            <div class="post-header">
+        <div class="home-sidebar-title">Recent Posts</div>
+        <div class="home-post-container">
+            <div class="home-post-header">
                 <div class="user-icon"></div>
                 <span class="username">username</span>
             </div>
-            <div class="post-image">
-                <img src="" alt="Post Image">
+            <hr class="post-divider">
+            <div class="home-post-content">
+                <img src="/static/images/user_photos/summit_photos/1/1.jpg">
             </div>
-            <div class="post-caption">
-                Caption
-            </div>
-        </div>
+        </div>        
     </div>
 
     <!-- Right Sidebar -->
     <div class="home-sidebar">
-        <h3>Your Next Peak?</h3>
-        <div class="peak-card"></div>
-        <div class="peak-card"></div>
+        <div class="home-sidebar-title">Your Next Peak</div>
+        <div class="home-search-bar">
+            <input type="text" placeholder="Find a peak..." class="search-input">
+        </div>
+        <div class="sidebar-peak-section">
+            <div class="sidebar-peak">
+                <div class="sidebar-peak-title">Mt. Washington</div>
+            </div>
+            <div class="sidebar-peak">
+            </div>
+            <div class="sidebar-peak">
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
