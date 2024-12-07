@@ -15,6 +15,7 @@ from werkzeug.utils import secure_filename
 
 # Local application/library-specific imports
 from helpers import login_required, get_weather, get_bg, compress_image_to_limit
+
 DATABASE = "48peaks.db"
 
 est = pytz.timezone('US/Eastern')
@@ -1140,4 +1141,4 @@ def follow_toggle():
         return jsonify({"code": 500, "message": "Internal Server Error"}), 500
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)
