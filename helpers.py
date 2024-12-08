@@ -3,6 +3,7 @@ import os
 import random
 from flask import redirect, render_template, session
 from functools import wraps
+from PIL import Image
 
 # Login required function from CS50's Finance
 def login_required(f):

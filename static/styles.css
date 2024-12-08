@@ -1750,7 +1750,7 @@ select:hover {
     flex-direction: column;
     align-items: center;
     gap: 20px;
-    overflow-y: auto;
+    overflow-y: hidden;
     height: 100%;
     justify-content: center;
 

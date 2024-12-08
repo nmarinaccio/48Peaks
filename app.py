@@ -100,9 +100,11 @@ def home():
         WHERE s.user_id IN (
             SELECT followee_id FROM followers WHERE follower_id = ?
         )
+        OR
+        s.user_id = ?
         ORDER BY date_hiked DESC
         LIMIT 4
-    """, (user_id,))
+    """, (user_id, user_id))
     recent_posts = []
 
     for post in recent_posts_unformatted:
