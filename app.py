@@ -544,7 +544,7 @@ def my_peaks():
         JOIN mountains m ON s.mountain_id = m.id
         WHERE s.user_id = ?
         AND s.mountain_id != 0
-        ORDER BY s.id
+        ORDER BY s.date_hiked
     """, (user_id,))
     peaks = peaks_query.fetchall()
 
@@ -568,11 +568,12 @@ def my_peaks():
     # Format data for peaks and comments
     formatted_peaks = []
     formatted_comments = {}
-
+    i = len(peaks)
     for index, peak in enumerate(reversed(peaks), start=1):  # Label oldest peak as 1
+        
         formatted_peaks.append({
             "summit_id": peak["summit_id"],
-            "peak_number": index,
+            "peak_number": i,
             "date_hiked": datetime.strptime(peak["date_hiked"], "%Y-%m-%d").strftime("%m/%d/%Y"),
             "notes": peak["notes"],
             "mountain_name": peak["mountain_name"],
@@ -580,6 +581,7 @@ def my_peaks():
             "mountain_photo": peak["mountain_photo"],
             "summit_picture": peak["summit_picture"] if peak["summit_picture"] else peak["mountain_photo"]
         })
+        i -= 1
 
     for comment in comments:
         summit_id = comment["summit_id"]

@@ -19,7 +19,7 @@
                 <div class="my-peak-details">
                     <div>
                         <p class="my-detail-title">Peak Number</p>
-                        <p class="my-detail-value">{{ peak.summit_id }}</p>
+                        <p class="my-detail-value">{{ peak.peak_number }}</p>
                     </div>
                     <div>
                         <p class="my-detail-title">Elevation</p>
@@ -109,7 +109,7 @@
     }
 
     // Load the most recent peak's details on page load
-    loadPeakDetails('{{num_of_peaks}}');
+    loadPeakDetails('{{peaks[0].summit_id}}');
 
 </script>
 {% endblock %}
