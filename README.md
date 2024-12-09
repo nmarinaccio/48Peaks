@@ -1,5 +1,9 @@
 # 48Peaks
 
+## Github Link:
+
+https://github.com/nmarinaccio/48Peaks
+
 ## Project Overview
 
 48Peaks allows users to track their hiking adventures in the 48 4,000+ footers of the White Mountains in New Hampshire. Users can create an account, post about their hikes, and follow/interact with others for inspiration and community building. The app also provides a platform for leaving comments on summits and mountains, making it easy to share experiences and tips with other hikers.
