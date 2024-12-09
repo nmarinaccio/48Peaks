@@ -36,7 +36,7 @@
 4. Run the app:
 
     ```bash
-    flask run
+    python3 app.py
     ```
 
 5. Navigate to `http://127.0.0.1:5000` in your browser to access the app.
