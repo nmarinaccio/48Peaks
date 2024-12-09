@@ -57,7 +57,7 @@ After setting up the app and running it locally, you can:
 
 ## Presentation Video
 
--URL
+https://youtu.be/n_xvUTsSomQ
 
 ## Testing
 
